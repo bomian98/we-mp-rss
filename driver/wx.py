@@ -326,7 +326,8 @@ class Wx:
             driver=self.controller
             # 启动浏览器并打开微信公众平台
             print_info("正在启动浏览器...")
-            driver.start_browser()
+            # 登录页必须允许图片加载，否则二维码截图会是空白图
+            driver.start_browser(dis_image=False)
             driver.open_url(self.WX_LOGIN)
             page=driver.page
 
@@ -340,16 +341,42 @@ class Wx:
             print_info("正在加载登录页面...")
             page.wait_for_load_state("networkidle")
             
-            # 定位二维码区域
-            qr_tag=".login__type__container__scan__qrcode"
-            # 获取二维码图片URL
-            qrcode = page.query_selector(qr_tag)
-            code_src=qrcode.get_attribute("src")
+            # 定位二维码区域并等待图片真正渲染完成，避免截到空白图
+            qr_tag = ".login__type__container__scan__qrcode"
+            qrcode = page.locator(qr_tag).first
+            qrcode.wait_for(state="visible", timeout=15 * 1000)
+            try:
+                # 等待二维码 src 可用，实测在容器环境偶发为空字符串
+                page.wait_for_function(
+                    """() => {
+                        const el = document.querySelector('.login__type__container__scan__qrcode');
+                        if (!el) return false;
+                        const src = el.getAttribute('src') || '';
+                        if (src.trim()) return true;
+                        const childImg = el.querySelector('img');
+                        if (!childImg) return false;
+                        const childSrc = childImg.getAttribute('src') || '';
+                        return !!childSrc.trim();
+                    }""",
+                    timeout=15 * 1000
+                )
+            except Exception:
+                # 保底等待，避免首帧未渲染就截图
+                time.sleep(2)
+
+            code_src = qrcode.get_attribute("src") or ""
+            if not code_src:
+                code_src = page.evaluate("""() => {
+                    const el = document.querySelector('.login__type__container__scan__qrcode');
+                    if (!el) return '';
+                    const src = el.getAttribute('src') || '';
+                    if (src.trim()) return src;
+                    const childImg = el.querySelector('img');
+                    return childImg ? (childImg.getAttribute('src') || '') : '';
+                }""")
+
             print("正在生成二维码图片...")
             print(f"code_src:{code_src}")
-            # qrcode = page.query_selector(qr_tag)
-           
-            # 使用Playwright截图功能（添加异常处理）
             qrcode.screenshot(path=self.wx_login_url)
 
             print("二维码已保存为 wx_qrcode.png，请扫码登录...")
