@@ -13,15 +13,6 @@
     // 设置界面字体（可选）
     "codingcopilot.autoRun": true,
     
-    // 设置默认终端为cmd
-    "terminal.integrated.defaultProfile.windows": "Command Prompt",
-    "terminal.integrated.profiles.windows": {
-        "Command Prompt": {
-            "path": "cmd.exe",
-            "args": []
-        }
-    },
-    
     // Python相关配置
     "python.defaultInterpreterPath": "E:/conda/envs/werss/python.exe",
     "python.terminal.activateEnvironment": true,
