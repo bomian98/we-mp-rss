@@ -7,6 +7,10 @@ CONTAINER_NAME="we-mp-rss"
 HOST_PORT=8001
 CONTAINER_PORT=8001
 
+# 项目根目录与数据目录（自动取当前脚本所在目录）
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DATA_DIR="${PROJECT_DIR}/data"
+
 # 如果需要在脚本里顺便 git pull，取消下面注释
 # echo ">>> Git pulling latest code..."
 # git pull --rebase
@@ -24,6 +28,7 @@ echo ">>> Running new container: ${CONTAINER_NAME}"
 docker run -d \
   --name "${CONTAINER_NAME}" \
   -p ${HOST_PORT}:${CONTAINER_PORT} \
+  -v "${DATA_DIR}:/app/data" \
   "${IMAGE_NAME}"
 
 echo ">>> Done. Current containers:"
