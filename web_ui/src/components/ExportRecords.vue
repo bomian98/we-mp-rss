@@ -1,14 +1,9 @@
 <template>
-  <div class="export-records">
-    <a-page-header title="导出记录" subtitle="查看和管理导出的文件">
+  <div class="page-view">
+    <a-card title="导出记录" :bordered="false">
       <template #extra>
-        <a-button type="primary" @click="fetchExportRecords">
-          刷新
-        </a-button>
+        <a-button type="primary" @click="fetchExportRecords">刷新</a-button>
       </template>
-    </a-page-header>
-
-    <a-card>
       <a-table
         :loading="loading"
         :columns="columns"
@@ -209,10 +204,6 @@ defineExpose({
 </script>
 
 <style scoped>
-.export-records {
-  padding: 16px;
-}
-
 .action-buttons {
   display: flex;
   gap: 8px;

@@ -78,35 +78,61 @@ const handleMenuClick = (key: string) => {
 </script>
 
 <style scoped>
+/* 与顶部 header 统一：白底、同内边距，作为「第二行导航」 */
 .navbar-header {
-  padding: 0 16px;
+  padding: 0 var(--space-xl);
   height: 48px;
   line-height: 48px;
-  background: var(--color-bg-elevated, #fff);
-  border-bottom: 1px solid var(--color-border-light, #f5f5f4);
+  background: var(--color-bg-elevated);
+  border-bottom: 1px solid var(--color-border);
+  box-sizing: border-box;
 }
 
 :deep(.arco-menu-horizontal) {
-  border-bottom: none;
+  border: none;
   background: transparent;
+  height: 100%;
 }
-/* 去掉 Arco 自带的蓝色选中指示条 (div.arco-menu-selected-label)，只保留绿色下划线 */
+/* 仅允许横向滚动，禁用纵向滚动，避免顶部出现异常竖向滚动条 */
+:deep(.arco-menu-horizontal .arco-menu-inner) {
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
 :deep(.arco-menu-horizontal .arco-menu-selected-label) {
-  background: transparent !important;
+  display: none;
 }
 :deep(.arco-menu-horizontal .arco-menu-item) {
+  position: relative;
   font-weight: 500;
   font-size: 0.9rem;
-  color: var(--color-text-secondary, #57534e);
+  color: var(--color-text-secondary);
+  margin: 0 0 0 2px;
+  padding: 0 var(--space-md);
+  height: 48px;
+  line-height: 48px;
+  border-radius: 0;
   transition: color 0.2s ease, background 0.2s ease;
 }
 :deep(.arco-menu-horizontal .arco-menu-item:hover) {
-  color: var(--primary-color, #0d9488);
-  background: var(--primary-lighter, #f0fdfa);
+  color: var(--primary-color);
+  background: var(--primary-lighter);
 }
+/* 选中态：主色 + 底部 2px 下划线，无背景块，避免与底部分隔线重叠 */
 :deep(.arco-menu-horizontal .arco-menu-item.arco-menu-selected) {
-  color: var(--primary-color, #0d9488);
+  color: var(--primary-color);
   font-weight: 600;
-  border-bottom: 2px solid var(--primary-color, #0d9488);
+  background: transparent;
+  border-left: none;
+}
+:deep(.arco-menu-horizontal .arco-menu-item.arco-menu-selected::after) {
+  content: '';
+  position: absolute;
+  left: var(--space-md);
+  right: var(--space-md);
+  bottom: 0;
+  height: 2px;
+  background: var(--primary-color);
+  border-radius: 2px 2px 0 0;
 }
 </style>

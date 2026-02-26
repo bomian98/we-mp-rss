@@ -228,30 +228,29 @@ onMounted(() => {
 
 <template>
   <a-spin :loading="loading">
-    <div class="message-task-list">
-      <div class="header">
-        <h2>消息任务列表</h2>
-        <a-tooltip :content="browserNotificationEnabled ? '点击关闭浏览器通知' : '开启后有新文章时浏览器标题会闪烁并播放提示音'" class="desktop-only">
-          <a-button class="desktop-only"
-            :type="browserNotificationEnabled ? 'primary' : 'outline'" 
-            :status="browserNotificationEnabled ? 'success' : 'normal'"
-            @click="toggleNotification"
-          >
-            <template #icon>
-              <icon-notification />
-            </template>
-            {{ browserNotificationEnabled ? '通知已开启' : '开启浏览器通知' }}
-          </a-button>
-        </a-tooltip>
-        <a-tooltip content="点击应用按钮后任务才会生效">
-          <a-button type="primary" @click="FreshJob">应用</a-button>
-        </a-tooltip>
-        <a-button type="primary" @click="handleAdd">添加消息任务</a-button>
-      </div>
-      <a-alert type="info" closable>
-        注意：只有添加了任务消息才会定时执行更新任务，点击应用按钮后任务才会生效
-      </a-alert>
-
+    <div class="page-view">
+      <a-card title="消息任务" :bordered="false">
+        <template #extra>
+          <a-space>
+            <a-tooltip :content="browserNotificationEnabled ? '点击关闭浏览器通知' : '开启后有新文章时浏览器标题会闪烁并播放提示音'" class="desktop-only">
+              <a-button class="desktop-only"
+                :type="browserNotificationEnabled ? 'primary' : 'outline'"
+                :status="browserNotificationEnabled ? 'success' : 'normal'"
+                @click="toggleNotification"
+              >
+                <template #icon><icon-notification /></template>
+                {{ browserNotificationEnabled ? '通知已开启' : '开启浏览器通知' }}
+              </a-button>
+            </a-tooltip>
+            <a-tooltip content="点击应用按钮后任务才会生效">
+              <a-button type="primary" @click="FreshJob">应用</a-button>
+            </a-tooltip>
+            <a-button type="primary" @click="handleAdd">添加消息任务</a-button>
+          </a-space>
+        </template>
+        <a-alert type="info" closable class="message-task-alert">
+          注意：只有添加了任务消息才会定时执行更新任务，点击应用按钮后任务才会生效
+        </a-alert>
       <TaskList
       :task-list="taskList"
       :loading="loading"
@@ -324,35 +323,20 @@ onMounted(() => {
         </a-space>
       </template>
     </TaskList>
+      </a-card>
     </div>
   </a-spin>
 </template>
 
 <style scoped>
-.message-task-list {
-  padding: 20px;
+.message-task-alert {
+  margin-bottom: var(--space-md);
 }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+.page-view :deep(.arco-card) {
+  margin-top: 0;
+  margin-bottom: var(--space-lg);
 }
-
-.header h2 {
-  flex: 1;
-}
-
-.header .arco-btn {
-  margin-left: 10px;
-}
-
-h2 {
-  margin: 0;
-  color: var(--color-text-1);
-}
-
 
 /* 移动端列表样式 */
 .a-list {

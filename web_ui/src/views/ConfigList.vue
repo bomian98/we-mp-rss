@@ -106,8 +106,11 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="config-management">
-    <a-card title="配置" :bordered="false">
+  <div class="page-view">
+    <a-card title="配置信息" :bordered="false">
+      <template #extra>
+        <a-button type="primary" @click="showAddModal">添加配置</a-button>
+      </template>
       <a-space direction="vertical" fill>
         <a-alert v-if="error" type="error" show-icon>{{ error }}</a-alert>
         
@@ -154,7 +157,10 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.config-management {
-  padding: 20px;
+.page-view :deep(.arco-card) {
+  margin-top: var(--space-md);
+}
+.page-view :deep(.arco-space-vertical) {
+  gap: var(--space-lg);
 }
 </style>

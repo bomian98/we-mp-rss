@@ -1,5 +1,18 @@
-import { trans as translate } from "./i18n/index.js";
-import { ref, watchEffect } from "vue";
+/** 仅在选择英文翻译时才加载 i18n，简体中文/禁用不加载约 330KB 的 index.js */
+const NEED_TRANSLATE_LANG = "english";
+
+function needLoadI18n(lang: string | null): boolean {
+  return !!lang && lang === NEED_TRANSLATE_LANG;
+}
+
+let translateInstance: { changeLanguage: (lang: string) => void } | null = null;
+
+async function getTranslate() {
+  if (translateInstance) return translateInstance;
+  const mod = await import("./i18n/index.js");
+  translateInstance = mod.trans as typeof translateInstance;
+  return translateInstance!;
+}
 
 const Has_Change = () => {
   let _hash = hash(document.body.innerText);
@@ -27,19 +40,20 @@ export const get_hash = (): string | null => {
 
 export const translatePage = () => {
   const savedLanguage = localStorage.getItem("language");
-  if (savedLanguage) {
-    setTimeout(() => {
-      if (!Has_Change()) {
-        console.log("未改变");
-        return;
-      }
-      translate.changeLanguage(savedLanguage);
-      set_hash();
-    }, 1000); // 延时1000毫秒后执行语言切换
-  }
+  if (!needLoadI18n(savedLanguage)) return; // 仅英文时加载并执行翻译
+  setTimeout(async () => {
+    if (!Has_Change()) {
+      console.log("未改变");
+      return;
+    }
+    const translate = await getTranslate();
+    translate.changeLanguage(savedLanguage!);
+    set_hash();
+  }, 1000); // 延时1000毫秒后执行语言切换
 };
 
 export const setCurrentLanguage = (language: string) => {
-  translate.changeLanguage(language);
   localStorage.setItem("language", language);
+  if (!needLoadI18n(language)) return; // 仅选英文时才加载 i18n
+  getTranslate().then((translate) => translate.changeLanguage(language));
 };

@@ -138,29 +138,24 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="tag-list">
-    <a-page-header title="标签管理" subtitle="管理文章标签">
+  <div class="page-view">
+    <a-card title="标签管理" :bordered="false">
       <template #extra>
         <a-space>
           <a-button @click="exportTags">
             <template #icon><icon-export /></template>
             导出标签
           </a-button>
-
           <a-button @click="importTags">
             <template #icon><icon-import /></template>
             导入标签
           </a-button>
-
           <a-button type="primary" @click="$router.push('/tags/add')">
-          <template #icon><icon-plus /></template>
+            <template #icon><icon-plus /></template>
             添加标签
           </a-button>
         </a-space>
       </template>
-    </a-page-header>
-
-    <a-card>
       <a-table
         v-if="!isMobile"
         :loading="loading"
@@ -248,9 +243,6 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.tag-list {
-  padding: 16px;
-}
 .load-more{
     width: 120px;
     margin: 0px auto;

@@ -97,8 +97,8 @@
         </a-card>
       </a-layout-sider>
 
-      <a-layout-content :style="{ padding: '20px', width: '100%' }">
-        <a-page-header :title="activeFeed ? activeFeed.name : '全部'" :subtitle="'管理您的公众号订阅内容'" :show-back="false">
+      <a-layout-content class="article-list-content">
+        <a-page-header class="article-page-header" :title="activeFeed ? activeFeed.name : '全部'" :subtitle="'管理您的公众号订阅内容'" :show-back="false">
           <template #extra>
             <a-space>
               <span style="font-size: 12px; color: var(--color-text-3);">{{ issourceUrl ? '原链接' : '内链' }}</span>
@@ -178,13 +178,13 @@
             <a-input-search v-model="searchText" placeholder="搜索文章标题" @search="handleSearch" @keyup.enter="handleSearch"
               allow-clear />
           </div>
-          <div class="article-table-wrap">
+          <div ref="tableWrapRef" class="article-table-wrap">
           <a-table
             :columns="columns"
             :data="articles"
             :loading="loading"
             :pagination="pagination"
-            :scroll="{ y: tableScrollY }"
+            :scroll="{ x: tableScrollX }"
             :row-selection="{
               type: 'checkbox',
               showCheckedAll: true,
@@ -268,7 +268,7 @@
 <script setup lang="ts">
 import { Avatar } from '@/utils/constants'
 import { translatePage, setCurrentLanguage } from '@/utils/translate';
-import { ref, onMounted, h, nextTick, watch, computed } from 'vue'
+import { ref, onMounted, onUnmounted, h, nextTick, watch, computed } from 'vue'
 import axios from 'axios'
 import { IconApps, IconAtt, IconDelete, IconEdit, IconEye, IconRefresh, IconScan, IconWeiboCircleFill, IconWifi, IconCode, IconCheck, IconClose, IconStop, IconPlayArrow, IconCopy, IconPlus, IconDown, IconExport, IconImport, IconShareExternal } from '@arco-design/web-vue/es/icon'
 import { getArticles, deleteArticle as deleteArticleApi, ClearArticle, ClearDuplicateArticle, getArticleDetail, toggleArticleReadStatus } from '@/api/article'
@@ -276,7 +276,7 @@ import { ExportOPML, ExportMPS, ImportMPS } from '@/api/export'
 import ExportModal from '@/components/ExportModal.vue'
 import { getSubscriptions, UpdateMps, toggleMpStatus as toggleMpStatusApi } from '@/api/subscription'
 import { inject } from 'vue'
-import { Message, Modal } from '@arco-design/web-vue'
+import { Message, Modal, Tooltip } from '@arco-design/web-vue'
 import { formatDateTime, formatTimestamp } from '@/utils/date'
 import router from '@/router'
 import { deleteMpApi } from '@/api/subscription'
@@ -285,7 +285,13 @@ import { ProxyImage } from '@/utils/constants'
 
 const articles = ref([])
 const loading = ref(false)
-const tableScrollY = ref(420)
+// 除「文章标题」外固定列宽之和（含行选复选框 50）：50+56+120+136+136+100=598；日期列实际用 17ch 在样式中
+const FIXED_COLUMNS_WIDTH = 598
+const TITLE_MIN_WIDTH = 360
+const TABLE_MIN_WIDTH = FIXED_COLUMNS_WIDTH + TITLE_MIN_WIDTH
+// 表格横向宽度：宽屏铺满容器；窄屏下不小于最小总宽，出现横向滚动
+const tableScrollX = ref(TABLE_MIN_WIDTH)
+const tableWrapRef = ref<HTMLElement | null>(null)
 const mpList = ref([])
 const mpLoading = ref(false)
 const activeMpId = ref('')
@@ -327,91 +333,98 @@ const statusColorMap = {
   deleted: 'red'
 }
 
-const columns = [
-  {
-    title: '已阅',
-    dataIndex: 'is_read',
-    width: '100',
-    render: ({ record }) => {
-      const isRead = record.is_read === 1;
-      return h('div', { 
-        style: { 
-          display: 'flex', 
-          alignItems: 'center', 
-          cursor: 'pointer',
-          color: isRead ? 'var(--color-success)' : 'var(--color-text-3)'
-        },
-        onClick: () => toggleReadStatus(record)
-      }, [
-        h(isRead ? IconCheck : IconClose, { 
-          style: { marginRight: '4px' } 
-        }),
-        h('span', { 
-          style: { fontSize: '12px' } 
-        }, isRead ? '已读' : '未读')
-      ]);
-    }
-  },
-  {
-    title: '文章标题',
-    dataIndex: 'title',
-    width: window.innerWidth - 1100,
-    ellipsis: true,
-    render: ({ record }) => h('a', {
-      href: issourceUrl.value ? record.url || '#' : "/views/article/" + record.id,
-      title: record.title,
-      target: '_blank',
-      style: { 
-        color: 'var(--color-text-1)',
-        textDecoration: record.is_read === 1 ? 'line-through' : 'none',
-        opacity: record.is_read === 1 ? 0.7 : 1
+const columns = computed(() => {
+  // 标题列 = 表格总宽 - 固定列宽之和，宽屏下自动变宽铺满；窄屏时至少 TITLE_MIN_WIDTH
+  const titleWidth = Math.max(TITLE_MIN_WIDTH, tableScrollX.value - FIXED_COLUMNS_WIDTH)
+  return [
+    {
+      title: '已阅',
+      dataIndex: 'is_read',
+      width: 56,
+      align: 'center',
+      render: ({ record }: { record: { is_read: number } }) => {
+        const isRead = record.is_read === 1;
+        return h(Tooltip, {
+          content: isRead ? '已读（点击切换）' : '未读（点击切换）'
+        }, {
+          default: () => h('div', {
+            style: {
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              color: isRead ? 'var(--color-success)' : 'var(--color-text-3)',
+              fontSize: '16px'
+            },
+            onClick: () => toggleReadStatus(record)
+          }, isRead ? '✓' : '○')
+        });
       }
-    }, record.title)
-  },
-  {
-    title: '公众号',
-    dataIndex: 'mp_id',
-    width: '120',
-    ellipsis: true,
-    render: ({ record }) => {
-      const mp = mpList.value.find(item => item.id === record.mp_id);
-      return h('a', {
+    },
+    {
+      title: '文章标题',
+      dataIndex: 'title',
+      width: titleWidth,
+      ellipsis: { showTitle: true },
+      render: ({ record }: { record: { title: string; id: string; url?: string; is_read: number } }) => h('a', {
+        href: issourceUrl.value ? record.url || '#' : "/views/article/" + record.id,
+        title: record.title,
+        target: '_blank',
         style: {
-          color: 'var(--color-link)',
-          cursor: 'pointer',
-          textDecoration: 'none'
-        },
-        onClick: (e: MouseEvent) => {
-          e.preventDefault()
-          handleMpClick(record.mp_id)
+          color: 'var(--color-text-1)',
+          textDecoration: record.is_read === 1 ? 'line-through' : 'none',
+          opacity: record.is_read === 1 ? 0.7 : 1
         }
-      }, record.mp_name || mp?.name || record.mp_id)
+      }, record.title)
+    },
+    {
+      title: '公众号',
+      dataIndex: 'mp_id',
+      width: 120,
+      ellipsis: true,
+      render: ({ record }: { record: { mp_id: string; mp_name?: string } }) => {
+        const mp = mpList.value.find((item: { id: string }) => item.id === record.mp_id);
+        return h('a', {
+          style: {
+            color: 'var(--color-link)',
+            cursor: 'pointer',
+            textDecoration: 'none'
+          },
+          onClick: (e: MouseEvent) => {
+            e.preventDefault()
+            handleMpClick(record.mp_id)
+          }
+        }, record.mp_name || mp?.name || record.mp_id)
+      }
+    },
+    {
+      title: '更新时间',
+      dataIndex: 'created_at',
+      width: 136,
+      className: 'col-datetime',
+      render: ({ record }: { record: { created_at: string } }) => h('span',
+        { style: { color: 'var(--color-text-3)', fontSize: '12px', whiteSpace: 'nowrap' } },
+        formatDateTime(record.created_at)
+      )
+    },
+    {
+      title: '发布时间',
+      dataIndex: 'publish_time',
+      width: 136,
+      className: 'col-datetime',
+      render: ({ record }: { record: { publish_time: string | number } }) => h('span',
+        { style: { color: 'var(--color-text-3)', fontSize: '12px', whiteSpace: 'nowrap' } },
+        formatTimestamp(record.publish_time)
+      )
+    },
+    {
+      title: '操作',
+      dataIndex: 'actions',
+      slotName: 'actions',
+      width: 100
     }
-  },
-  {
-    title: '更新时间',
-    dataIndex: 'created_at',
-    width: '140',
-    render: ({ record }) => h('span',
-      { style: { color: 'var(--color-text-3)', fontSize: '12px' } },
-      formatDateTime(record.created_at)
-    )
-  },
-  {
-    title: '发布时间',
-    dataIndex: 'publish_time',
-    width: '140',
-    render: ({ record }) => h('span',
-      { style: { color: 'rgb(var(--color-text-3))', fontSize: '12px' } },
-      formatTimestamp(record.publish_time)
-    )
-  },
-  {
-    title: '操作',
-    dataIndex: 'actions',
-    slotName: 'actions'
-  }
-]
+  ]
+})
 
 const handleMpPageChange = (page: number, pageSize: number) => {
   mpPagination.value.current = page
@@ -754,6 +767,12 @@ const handleExportShow = async () => {
 }
 
 
+const updateTableScrollX = () => {
+  if (!tableWrapRef.value) return
+  const width = tableWrapRef.value.clientWidth || tableWrapRef.value.getBoundingClientRect().width || TABLE_MIN_WIDTH
+  tableScrollX.value = Math.max(TABLE_MIN_WIDTH, Math.floor(width))
+}
+
 onMounted(() => {
   console.log('组件挂载，开始获取数据')
   initIssourceUrl() // 初始化 issourceUrl 值
@@ -763,6 +782,13 @@ onMounted(() => {
   }).catch(err => {
     console.error('初始化失败:', err)
   })
+  nextTick(() => {
+    updateTableScrollX()
+    window.addEventListener('resize', updateTableScrollX)
+  })
+})
+onUnmounted(() => {
+  window.removeEventListener('resize', updateTableScrollX)
 })
 
 const fetchMpList = async () => {
@@ -981,18 +1007,49 @@ const toggleReadStatus = async (record: any) => {
 }
 
 /* ========== 左侧公众号栏目（设计系统统一） ========== */
-/* 整块布局给固定高度，侧栏才能撑满 */
+/* 整块布局给固定高度，侧栏才能撑满；主区域随窗口宽度适配 */
 .article-list {
-  height: calc(100vh - 108px);
-  min-height: calc(100vh - 108px);
+  /* 扣除主布局内容区的上下内边距，避免页面整体再出现一条外层滚动条 */
+  height: calc(100vh - 104px - var(--space-lg) - var(--space-xl));
+  max-height: calc(100vh - 104px - var(--space-lg) - var(--space-xl));
+  min-height: 0;
   display: flex;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* 右侧主内容区：占满剩余宽度、可收缩，溢出在 .article-list-content 内横向滚动 */
+.article-list :deep(.arco-layout-content) {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.article-list-content {
+  padding: var(--space-lg);
+  width: 100%;
+  min-width: 0;
+  flex: 1;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  box-sizing: border-box;
+}
+
+.article-page-header {
+  margin-bottom: var(--space-lg);
+}
+.article-page-header :deep(.arco-page-header-title) {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
 }
 
 /* 侧栏根节点占满高度 */
 .mp-sider {
-  background: var(--color-bg-elevated, #fff) !important;
+  background: var(--color-bg-elevated) !important;
   padding: 0 !important;
-  border-right: 1px solid var(--color-border-light, #f5f5f4) !important;
+  border-right: 1px solid var(--color-border-light) !important;
   display: flex;
   flex-direction: column;
   height: 100% !important;
@@ -1011,6 +1068,9 @@ const toggleReadStatus = async (record: any) => {
   flex-direction: column;
   flex: 1;
   min-height: 0;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border-light);
 }
 
 .mp-sider-card :deep(.arco-card-body) {
@@ -1018,22 +1078,22 @@ const toggleReadStatus = async (record: any) => {
   display: flex;
   flex-direction: column;
   min-height: 0;
-  padding: 14px 16px;
+  padding: var(--space-sm) var(--space-md);
 }
 
 .mp-sider-card :deep(.arco-card-header) {
-  padding: 14px 18px;
-  border-bottom: 1px solid var(--color-border-light, #f5f5f4);
-  background: var(--color-bg-elevated, #fff);
+  padding: var(--space-sm) var(--space-lg);
+  border-bottom: 1px solid var(--color-border-light);
+  background: var(--color-bg-elevated);
   font-weight: 600;
   font-size: 1rem;
-  color: var(--color-text-primary, #1c1917);
+  color: var(--color-text-primary);
   flex-shrink: 0;
 }
 
 .mp-sider-btn-sub {
   font-weight: 500;
-  border-radius: var(--radius-md, 10px);
+  border-radius: var(--radius-md);
 }
 
 .mp-sider-body {
@@ -1041,7 +1101,7 @@ const toggleReadStatus = async (record: any) => {
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  background: var(--color-bg-elevated, #fff);
+  background: var(--color-bg-elevated);
   padding: 0 2px;
 }
 
@@ -1067,14 +1127,14 @@ const toggleReadStatus = async (record: any) => {
 }
 
 .mp-sider-search :deep(.arco-input-wrapper) {
-  border-radius: var(--radius-md, 10px);
-  border-color: var(--color-border-light, #f5f5f4);
-  background: var(--color-bg-base, #fafaf9);
+  border-radius: var(--radius-md);
+  border-color: var(--color-border-light);
+  background: var(--color-bg-base);
 }
 .mp-sider-search :deep(.arco-input-wrapper:hover),
 .mp-sider-search :deep(.arco-input-wrapper:focus-within) {
-  border-color: var(--primary-color, #0d9488);
-  background: #fff;
+  border-color: var(--primary-color);
+  background: var(--color-bg-elevated);
 }
 
 .mp-sider-list {
@@ -1083,10 +1143,10 @@ const toggleReadStatus = async (record: any) => {
 
 .mp-sider-list :deep(.arco-list-item) {
   border: none !important;
-  border-bottom: 1px solid var(--color-border-light, #f5f5f4);
+  border-bottom: 1px solid var(--color-border-light);
   padding: 10px 12px;
   margin: 0;
-  border-radius: var(--radius-sm, 6px);
+  border-radius: var(--radius-sm);
   margin-bottom: 4px;
   transition: background 0.2s ease;
 }
@@ -1099,7 +1159,7 @@ const toggleReadStatus = async (record: any) => {
 }
 
 .mp-sider-item:hover {
-  background: var(--primary-lighter, #f0fdfa) !important;
+  background: var(--primary-lighter) !important;
 }
 
 .mp-sider-item-inner {
@@ -1112,7 +1172,7 @@ const toggleReadStatus = async (record: any) => {
 .mp-sider-item-avatar {
   width: 40px;
   height: 40px;
-  border-radius: var(--radius-sm, 6px);
+  border-radius: var(--radius-sm);
   object-fit: cover;
   margin-right: 12px;
   flex-shrink: 0;
@@ -1120,7 +1180,7 @@ const toggleReadStatus = async (record: any) => {
 
 .mp-sider-item-name {
   line-height: 32px;
-  color: var(--color-text-primary, #1c1917);
+  color: var(--color-text-primary);
   font-size: 0.9rem;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1133,38 +1193,56 @@ const toggleReadStatus = async (record: any) => {
 }
 
 .active-mp {
-  background: var(--primary-lighter, #f0fdfa) !important;
-  color: var(--primary-color, #0d9488);
+  background: var(--primary-lighter) !important;
+  color: var(--primary-color);
 }
 
 .active-mp .mp-sider-item-name {
-  color: var(--primary-color, #0d9488);
+  color: var(--primary-color);
 }
 
 .mp-sider-pagination {
   flex-shrink: 0;
-  margin-top: 16px;
-  padding-top: 12px;
-  border-top: 1px solid var(--color-border-light, #f5f5f4);
+  margin-top: var(--space-md);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--color-border-light);
 }
 
 .mp-sider-pagination :deep(.arco-pagination-item-active) {
-  background: var(--primary-color, #0d9488) !important;
-  border-color: var(--primary-color, #0d9488) !important;
+  background: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
 }
 
 .a-layout-sider {
   overflow: hidden;
 }
 
-/* 表格区域：固定高度，避免无数据时整屏空白 */
+/* 表格区域：固定高度，避免无数据时整屏空白；支持横向滚动，窄屏时表格不被遮挡 */
 .article-table-wrap {
   min-height: 320px;
   max-height: calc(100vh - 320px);
+  overflow-x: auto;
+  width: 100%;
+  min-width: 0;
 }
 
 .article-table-wrap :deep(.arco-table-container) {
   min-height: 280px;
+}
+.article-table-wrap :deep(.arco-table) {
+  min-width: 800px;
+}
+/* 日期列按字宽 17ch，不同字体下一致；禁止换行 */
+.article-table-wrap :deep(.arco-table-th.col-datetime),
+.article-table-wrap :deep(.arco-table-td.col-datetime),
+.article-table-wrap :deep(.arco-table-th[data-col-key="created_at"]),
+.article-table-wrap :deep(.arco-table-td[data-col-key="created_at"]),
+.article-table-wrap :deep(.arco-table-th[data-col-key="publish_time"]),
+.article-table-wrap :deep(.arco-table-td[data-col-key="publish_time"]) {
+  min-width: 17ch;
+  width: 17ch;
+  box-sizing: border-box;
+  white-space: nowrap;
 }
 
 /* 自定义空状态：紧凑、有引导，不占满整屏 */
@@ -1173,13 +1251,13 @@ const toggleReadStatus = async (record: any) => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 32px 24px;
+  padding: var(--space-xl) var(--space-lg);
   min-height: 240px;
   max-height: 280px;
   box-sizing: border-box;
-  background: var(--color-bg-2, #f7f8fa);
-  border-radius: 10px;
-  margin: 8px 0;
+  background: var(--color-border-light);
+  border-radius: var(--radius-md);
+  margin: var(--space-xs) 0;
 }
 
 .article-empty-icon {
@@ -1188,24 +1266,24 @@ const toggleReadStatus = async (record: any) => {
   justify-content: center;
   width: 56px;
   height: 56px;
-  margin-bottom: 16px;
-  color: var(--color-text-3, #86909c);
+  margin-bottom: var(--space-md);
+  color: var(--color-text-tertiary);
   font-size: 40px;
-  background: var(--color-fill-2, #f2f3f5);
-  border-radius: 12px;
+  background: var(--color-bg-base);
+  border-radius: var(--radius-md);
 }
 
 .article-empty-title {
-  margin: 0 0 8px;
+  margin: 0 0 var(--space-xs);
   font-size: 15px;
   font-weight: 600;
-  color: var(--color-text-1, #1d2129);
+  color: var(--color-text-primary);
 }
 
 .article-empty-desc {
-  margin: 0 0 20px;
+  margin: 0 0 var(--space-lg);
   font-size: 13px;
-  color: var(--color-text-3, #86909c);
+  color: var(--color-text-tertiary);
   text-align: center;
   line-height: 1.5;
   max-width: 320px;
@@ -1213,21 +1291,6 @@ const toggleReadStatus = async (record: any) => {
 
 .article-empty-btn {
   flex-shrink: 0;
-}
-
-.a-list-item {
-  cursor: pointer;
-  padding: 12px 16px;
-  transition: all 0.2s;
-  margin-bottom: 0 !important;
-}
-
-.a-list-item:hover {
-  background-color: var(--color-fill-2);
-}
-
-.active-mp {
-  background-color: var(--color-primary-light-1);
 }
 
 .search-bar {

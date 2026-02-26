@@ -1,5 +1,5 @@
 <template>
-  <a-page-header title="系统信息" :sub-title="`版本: ${sysInfo.version}`">
+  <div class="page-view">
     <a-card :bordered="false" class="sys-info-card" title="系统资源">
        <SystemResources :resources="sysInfo.resources" />
     </a-card>
@@ -94,7 +94,7 @@
         </a-descriptions-item>
       </a-descriptions>
     </a-card>
-  </a-page-header>
+  </div>
 </template>
 
 <script setup lang="ts">

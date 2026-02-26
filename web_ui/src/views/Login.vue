@@ -117,7 +117,7 @@ const handleSubmit = async () => {
   position: relative;
   min-height: 100vh;
   overflow: hidden;
-  background: var(--color-bg-base, #fafaf9);
+  background: var(--color-bg-base);
 }
 
 /* 背景：柔和几何与层次，非紫蓝渐变 */
@@ -174,7 +174,7 @@ const handleSubmit = async () => {
 .login-left {
   flex: 0 0 52%;
   padding: 80px 64px;
-  color: #1c1917;
+  color: var(--color-text-primary);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -191,7 +191,7 @@ const handleSubmit = async () => {
   letter-spacing: -0.02em;
   line-height: 1.2;
   margin-bottom: 20px;
-  color: #1c1917;
+  color: var(--color-text-primary);
   animation: fadeInUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
@@ -199,7 +199,7 @@ const handleSubmit = async () => {
   font-size: 1.05rem;
   line-height: 1.65;
   margin-bottom: 32px;
-  color: var(--color-text-secondary, #57534e);
+  color: var(--color-text-secondary);
   animation: fadeInUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
 }
 
@@ -214,7 +214,7 @@ const handleSubmit = async () => {
   align-items: center;
   gap: 12px;
   font-size: 0.95rem;
-  color: #44403c;
+  color: var(--color-text-secondary);
   opacity: 0;
   animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
@@ -227,7 +227,7 @@ const handleSubmit = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--primary-color, #0d9488);
+  color: var(--primary-color);
   font-size: 1.1rem;
 }
 
@@ -251,7 +251,7 @@ const handleSubmit = async () => {
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-left: 1px solid rgba(231, 229, 228, 0.8);
+  border-left: 1px solid var(--color-border);
 }
 
 .login-card-wrap {
@@ -263,64 +263,64 @@ const handleSubmit = async () => {
 .login-card {
   width: 100%;
   padding: 40px 36px;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(28, 25, 23, 0.08), 0 1px 3px rgba(28, 25, 23, 0.06);
-  border: 1px solid var(--color-border-light, #f5f5f4);
-  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  background: var(--color-bg-elevated);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border-light);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 .login-card:hover {
-  box-shadow: 0 12px 40px rgba(28, 25, 23, 0.1), 0 2px 8px rgba(28, 25, 23, 0.06);
-  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
 }
 
 :deep(.arco-form-item-label) {
-  color: #1c1917 !important;
+  color: var(--color-text-primary) !important;
   font-weight: 600;
   font-size: 0.9rem;
   margin-bottom: 8px;
 }
 :deep(.arco-input-wrapper) {
   height: 48px;
-  background: #fafaf9;
-  border: 1px solid #e7e5e4;
-  border-radius: 10px;
-  color: #1c1917;
+  background: var(--color-bg-base);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 :deep(.arco-input-wrapper:hover) {
-  border-color: #d6d3d1;
-  background: #fff;
+  border-color: var(--color-border);
+  background: var(--color-bg-elevated);
 }
 :deep(.arco-input-wrapper:focus-within) {
-  border-color: var(--primary-color, #0d9488);
+  border-color: var(--primary-color);
   box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
-  background: #fff;
+  background: var(--color-bg-elevated);
 }
 :deep(.arco-input::placeholder) {
-  color: #a8a29e;
+  color: var(--color-text-tertiary);
 }
 :deep(.arco-btn-primary) {
   height: 48px;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   font-weight: 600;
   font-size: 1rem;
-  background: var(--primary-color, #0d9488) !important;
-  border-color: var(--primary-color, #0d9488) !important;
+  background: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
   transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 :deep(.arco-btn-primary:hover) {
-  background: var(--primary-hover, #0f766e) !important;
-  border-color: var(--primary-hover, #0f766e) !important;
+  background: var(--primary-hover) !important;
+  border-color: var(--primary-hover) !important;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
 }
 :deep(.arco-form-item-error .arco-input-wrapper) {
-  border-color: var(--danger-color, #dc2626);
+  border-color: var(--danger-color);
   background-color: #fef2f2;
 }
 :deep(.arco-form-message) {
-  color: var(--danger-color, #dc2626);
+  color: var(--danger-color);
   font-size: 0.85rem;
   margin-top: 6px;
 }
@@ -336,7 +336,7 @@ const handleSubmit = async () => {
   }
   .login-right {
     border-left: none;
-    border-top: 1px solid rgba(231, 229, 228, 0.8);
+    border-top: 1px solid var(--color-border);
   }
   .login-card-wrap {
     max-width: 400px;

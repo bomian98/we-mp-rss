@@ -211,34 +211,28 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.wechat-mp-management {
-  padding: var(--space-lg, 24px);
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
 .mp-card {
-  border-radius: var(--radius-lg, 14px);
-  box-shadow: var(--shadow-sm, 0 1px 2px rgba(28, 25, 23, 0.06));
-  border: 1px solid var(--color-border-light, #f5f5f4);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border-light);
   overflow: hidden;
 }
 
 .mp-card :deep(.arco-card-header) {
-  padding: 20px 24px;
-  border-bottom: 1px solid var(--color-border-light, #f5f5f4);
+  padding: var(--space-lg) var(--space-xl);
+  border-bottom: 1px solid var(--color-border-light);
   font-weight: 600;
   font-size: 1.1rem;
-  color: var(--color-text-primary, #1c1917);
+  color: var(--color-text-primary);
 }
 
 .mp-card :deep(.arco-card-body) {
-  padding: 24px;
+  padding: var(--space-xl);
 }
 
 .btn-add {
   font-weight: 500;
-  border-radius: var(--radius-md, 10px);
+  border-radius: var(--radius-md);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .btn-add:hover {
@@ -247,21 +241,21 @@ onMounted(() => {
 }
 
 .load-progress {
-  margin-bottom: 16px;
+  margin-bottom: var(--space-md);
 }
 
 .mp-table :deep(.arco-table-th) {
   font-weight: 600;
-  color: var(--color-text-secondary, #57534e);
-  background: var(--color-bg-base, #fafaf9);
+  color: var(--color-text-secondary);
+  background: var(--color-bg-base);
 }
 
 .mp-table :deep(.arco-table-td) {
-  color: var(--color-text-primary, #1c1917);
+  color: var(--color-text-primary);
 }
 
 .mp-table :deep(.arco-table-tr:hover .arco-table-td) {
-  background: var(--primary-lighter, #f0fdfa) !important;
+  background: var(--primary-lighter) !important;
 }
 
 .status-tag {
@@ -270,7 +264,7 @@ onMounted(() => {
 
 .btn-edit,
 .btn-delete {
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-weight: 500;
   transition: transform 0.15s ease;
 }
