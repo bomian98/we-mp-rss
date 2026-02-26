@@ -81,10 +81,10 @@ const handleMenuClick = (key: string) => {
 /* 与顶部 header 统一：白底、同内边距，作为「第二行导航」 */
 .navbar-header {
   padding: 0 var(--space-xl);
-  height: 48px;
-  line-height: 48px;
-  background: var(--color-bg-elevated);
-  border-bottom: 1px solid var(--color-border);
+  height: 56px;
+  line-height: 56px;
+  background: linear-gradient(180deg, var(--color-bg-elevated) 0%, var(--color-bg-layer) 100%);
+  border-bottom: 1px solid var(--color-border-light);
   box-sizing: border-box;
 }
 
@@ -92,12 +92,23 @@ const handleMenuClick = (key: string) => {
   border: none;
   background: transparent;
   height: 100%;
+  display: flex;
+  align-items: center;
 }
 /* 仅允许横向滚动，禁用纵向滚动，避免顶部出现异常竖向滚动条 */
 :deep(.arco-menu-horizontal .arco-menu-inner) {
   height: 100%;
   overflow-x: auto;
   overflow-y: hidden;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  /* 隐藏滚动条（视觉干净） */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+:deep(.arco-menu-horizontal .arco-menu-inner::-webkit-scrollbar) {
+  display: none;
 }
 :deep(.arco-menu-horizontal .arco-menu-selected-label) {
   display: none;
@@ -105,34 +116,76 @@ const handleMenuClick = (key: string) => {
 :deep(.arco-menu-horizontal .arco-menu-item) {
   position: relative;
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   color: var(--color-text-secondary);
-  margin: 0 0 0 2px;
-  padding: 0 var(--space-md);
-  height: 48px;
-  line-height: 48px;
-  border-radius: 0;
-  transition: color 0.2s ease, background 0.2s ease;
+  margin: 0;
+  padding: 0 14px;
+  height: 36px;
+  line-height: 36px;
+  border-radius: 999px;
+  transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
 }
 :deep(.arco-menu-horizontal .arco-menu-item:hover) {
-  color: var(--primary-color);
+  color: var(--primary-hover);
   background: var(--primary-lighter);
 }
-/* 选中态：主色 + 底部 2px 下划线，无背景块，避免与底部分隔线重叠 */
+/* 选中态：轻背景 + 轻阴影，提升产品感 */
 :deep(.arco-menu-horizontal .arco-menu-item.arco-menu-selected) {
   color: var(--primary-color);
   font-weight: 600;
-  background: transparent;
-  border-left: none;
+  background: var(--color-bg-brand-soft);
 }
 :deep(.arco-menu-horizontal .arco-menu-item.arco-menu-selected::after) {
-  content: '';
-  position: absolute;
-  left: var(--space-md);
-  right: var(--space-md);
-  bottom: 0;
-  height: 2px;
-  background: var(--primary-color);
-  border-radius: 2px 2px 0 0;
+  display: none;
+}
+
+/* ========== 移动端响应式 ========== */
+
+/* 平板及以下（≤ 768px）：减少水平内边距 */
+@media screen and (max-width: 768px) {
+  .navbar-header {
+    padding: 0 var(--space-sm);
+    height: 48px;
+    line-height: 48px;
+  }
+
+  :deep(.arco-menu-horizontal .arco-menu-inner) {
+    gap: 2px;
+  }
+
+  :deep(.arco-menu-horizontal .arco-menu-item) {
+    padding: 0 10px;
+    height: 32px;
+    line-height: 32px;
+    font-size: 0.813rem;
+  }
+}
+
+/* 手机（≤ 480px）：隐藏图标，只保留文字，横向滚动 */
+@media screen and (max-width: 480px) {
+  .navbar-header {
+    padding: 0 var(--space-xs);
+    height: 44px;
+    line-height: 44px;
+  }
+
+  :deep(.arco-menu-horizontal .arco-menu-inner) {
+    gap: 2px;
+    flex-wrap: nowrap;
+  }
+
+  :deep(.arco-menu-horizontal .arco-menu-item) {
+    padding: 0 10px;
+    height: 32px;
+    line-height: 32px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* 隐藏图标，只保留文字 */
+  :deep(.arco-menu-horizontal .arco-menu-item .arco-menu-item-icon) {
+    display: none;
+  }
 }
 </style>

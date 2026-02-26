@@ -27,10 +27,7 @@ const appTitle = computed(() => {
 <style scoped>
 .basic-layout-content {
   background: var(--color-bg-base);
-  padding: 0 var(--space-xl) var(--space-xl) 0;
-  padding-left: 0;
-  /* 与上方 Tab 栏留出间距，Tab 栏已有底部分隔线 */
-  padding-top: var(--space-lg);
+  padding: 0;
   min-height: 100%;
   width: 100%;
   box-sizing: border-box;

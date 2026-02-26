@@ -157,9 +157,6 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.page-view :deep(.arco-card) {
-  margin-top: var(--space-md);
-}
 .page-view :deep(.arco-space-vertical) {
   gap: var(--space-lg);
 }

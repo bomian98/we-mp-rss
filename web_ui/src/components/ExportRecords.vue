@@ -1,17 +1,15 @@
 <template>
-  <div class="page-view">
-    <a-card title="导出记录" :bordered="false">
-      <template #extra>
-        <a-button type="primary" @click="fetchExportRecords">刷新</a-button>
-      </template>
-      <a-table
-        :loading="loading"
-        :columns="columns"
-        :data="exportRecords"
-        :pagination="pagination"
-      />
-    </a-card>
-  </div>
+  <a-card title="导出记录" :bordered="false">
+    <template #extra>
+      <a-button type="primary" @click="fetchExportRecords">刷新</a-button>
+    </template>
+    <a-table
+      :loading="loading"
+      :columns="columns"
+      :data="exportRecords"
+      :pagination="pagination"
+    />
+  </a-card>
 </template>
 <script setup lang="ts">
 import { Message, Modal } from '@arco-design/web-vue';

@@ -24,29 +24,36 @@ html, body {
 
 /* ========== 设计令牌 ========== */
 :root {
-  /* 主色：青绿/订阅感，替代通用蓝 */
-  --primary-color: #0d9488;
-  --primary-hover: #0f766e;
-  --primary-light: #ccfbf1;
-  --primary-lighter: #f0fdfa;
+  /* 品牌主色：轻量、亲和、可识别 */
+  --primary-color: #2f9e84;
+  --primary-hover: #278a73;
+  --primary-light: #d7f4ea;
+  --primary-lighter: #eefaf6;
+  --accent-color: #5b8def;
+  --accent-light: #eaf0ff;
 
   /* Arco 覆盖 */
-  --primary-6: #0d9488;
-  --primary-5: #14b8a6;
-  --primary-7: #0f766e;
+  --primary-6: #2f9e84;
+  --primary-5: #49b596;
+  --primary-7: #278a73;
 
   --success-color: #059669;
   --warning-color: #d97706;
   --danger-color: #dc2626;
+  --status-success-soft: #e9f8f1;
+  --status-warning-soft: #fff5e8;
+  --status-danger-soft: #feeeee;
 
   /* 中性色：略偏冷灰，与主色对比更清晰 */
   --color-text-primary: #1c1917;
   --color-text-secondary: #57534e;
   --color-text-tertiary: #78716c;
-  --color-bg-base: #f8fafc;
+  --color-bg-base: #f6f8fb;
+  --color-bg-layer: #f9fbff;
+  --color-bg-brand-soft: #f2faf7;
   --color-bg-elevated: #ffffff;
-  --color-border: #e2e8f0;
-  --color-border-light: #f1f5f9;
+  --color-border: #dde5ef;
+  --color-border-light: #edf2f7;
 
   /* 间距 */
   --space-xxs: 0.25rem;
@@ -63,14 +70,14 @@ html, body {
   --breakpoint-xl: 1200px;
 
   /* 圆角：全站统一 */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 12px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
 
   /* 阴影：更柔和 */
-  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05);
-  --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.07);
-  --shadow-lg: 0 12px 28px rgba(15, 23, 42, 0.09);
+  --shadow-sm: 0 3px 10px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 10px 28px rgba(15, 23, 42, 0.07);
+  --shadow-lg: 0 16px 36px rgba(15, 23, 42, 0.1);
 }
 
 /* 链接 */
@@ -103,16 +110,20 @@ a:hover {
   padding: var(--space-lg) var(--space-xl);
 }
 
-/* Tab 页统一容器：只保留卡片，标题看 tab；左右留白不贴边（订阅管理无 page-view 不受影响） */
+/* Tab 页统一容器：仅对主内容区第一层 page-view 生效，避免嵌套时重复叠加间距 */
 .page-view {
-  padding: 0 var(--space-xl);
   min-height: 0;
 }
-.page-view .arco-card {
+.basic-layout-content > .page-view {
+  padding: var(--space-lg) var(--space-xl) var(--space-xl);
+  background: linear-gradient(180deg, var(--color-bg-layer) 0%, var(--color-bg-base) 100%);
+}
+.basic-layout-content > .page-view > .arco-card {
+  margin: 0 0 var(--space-lg);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
 }
-.page-view .arco-card-header {
+.basic-layout-content > .page-view .arco-card-header {
   font-weight: 600;
   color: var(--color-text-primary);
 }
@@ -121,7 +132,7 @@ a:hover {
 .card-base {
   background: var(--color-bg-elevated);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border-light);
+  border: 1px solid var(--color-border);
   box-shadow: var(--shadow-sm);
   transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
@@ -202,6 +213,7 @@ h2, .section-title {
 }
 .arco-btn {
   border-radius: var(--radius-md) !important;
+  font-weight: 500;
   transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease !important;
 }
 .arco-btn-primary {
@@ -211,11 +223,11 @@ h2, .section-title {
 .arco-btn-primary:hover {
   background: var(--primary-hover) !important;
   border-color: var(--primary-hover) !important;
-  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25) !important;
+  box-shadow: 0 8px 20px rgba(47, 158, 132, 0.22) !important;
 }
 .arco-card {
   border-radius: var(--radius-lg) !important;
-  border: 1px solid var(--color-border-light) !important;
+  border: 1px solid var(--color-border) !important;
   box-shadow: var(--shadow-sm) !important;
 }
 .arco-table-th,
@@ -229,10 +241,52 @@ h2, .section-title {
   background-color: var(--primary-lighter) !important;
 }
 
-/* ========== 弹窗移动端 ========== */
+/* ========== 移动端全局适配 ========== */
 @media screen and (max-width: 768px) {
   .arco-modal {
     width: 90% !important;
+  }
+
+  .page-container {
+    padding: var(--space-md) var(--space-sm);
+  }
+
+  .basic-layout-content > .page-view {
+    padding: var(--space-md) var(--space-sm) var(--space-lg);
+  }
+
+  /* Card header：标题与操作按钮竖向堆叠，全站统一 */
+  .arco-card-header {
+    flex-wrap: wrap;
+    height: auto !important;
+    padding: 12px 16px 8px !important;
+    gap: 8px;
+  }
+  .arco-card-header-title {
+    flex: 0 0 100%;
+  }
+  .arco-card-header-extra {
+    flex: 0 0 100%;
+    font-size: 14px;
+  }
+  .arco-card-header-extra .arco-space {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  .arco-card-header-extra .arco-btn {
+    flex: 1;
+    min-width: 0;
+    padding: 0 8px !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .page-container {
+    padding: var(--space-sm) var(--space-xs);
+  }
+
+  .basic-layout-content > .page-view {
+    padding: var(--space-sm) var(--space-xs) var(--space-md);
   }
 }
 

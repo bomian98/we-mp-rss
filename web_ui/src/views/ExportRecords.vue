@@ -1,5 +1,7 @@
 <template>
-      <ExportRecords :mp_id="mp_id" />
+  <div class="page-view">
+    <ExportRecords :mp_id="mp_id" />
+  </div>
 </template>
 
 <script setup>
@@ -9,6 +11,3 @@ import { computed } from 'vue'
 import ExportRecords from '@/components/ExportRecords.vue'
 const mp_id = ref('')
 </script>
-
-<style scoped>
-</style>

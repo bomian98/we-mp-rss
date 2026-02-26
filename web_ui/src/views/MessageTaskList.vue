@@ -227,9 +227,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <a-spin :loading="loading">
-    <div class="page-view">
-      <a-card title="消息任务" :bordered="false">
+  <div class="page-view">
+    <a-card title="消息任务" :bordered="false">
         <template #extra>
           <a-space>
             <a-tooltip :content="browserNotificationEnabled ? '点击关闭浏览器通知' : '开启后有新文章时浏览器标题会闪烁并播放提示音'" class="desktop-only">
@@ -323,19 +322,13 @@ onMounted(() => {
         </a-space>
       </template>
     </TaskList>
-      </a-card>
-    </div>
-  </a-spin>
+    </a-card>
+  </div>
 </template>
 
 <style scoped>
 .message-task-alert {
   margin-bottom: var(--space-md);
-}
-
-.page-view :deep(.arco-card) {
-  margin-top: 0;
-  margin-bottom: var(--space-lg);
 }
 
 /* 移动端列表样式 */

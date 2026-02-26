@@ -203,7 +203,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="ak-management">
+  <div class="page-view">
     <a-card title="Access Key 管理" :bordered="false">
       <template #extra>
         <a-button type="primary" @click="showCreateModal">+ 创建 Access Key</a-button>
@@ -314,63 +314,59 @@ onMounted(() => {
       </a-space>
     </a-card>
 
-    <!-- 创建/编辑模态框 -->
-    <a-modal
-      v-model:visible="visible"
-      :title="modalTitle"
-      width="600px"
-      @ok="handleSubmit"
-      @cancel="visible = false"
-    >
-      <a-form :model="form" layout="vertical">
-        <a-form-item label="AK 名称" field="name" required>
-          <a-input 
-            v-model="form.name" 
-            placeholder="例如：生产环境爬虫"
-            @keyup.enter="handleSubmit"
-          />
-        </a-form-item>
+      <!-- 创建/编辑模态框 -->
+      <a-modal
+        v-model:visible="visible"
+        :title="modalTitle"
+        width="600px"
+        @ok="handleSubmit"
+        @cancel="visible = false"
+      >
+        <a-form :model="form" layout="vertical">
+          <a-form-item label="AK 名称" field="name" required>
+            <a-input 
+              v-model="form.name" 
+              placeholder="例如：生产环境爬虫"
+              @keyup.enter="handleSubmit"
+            />
+          </a-form-item>
 
-        <a-form-item label="描述" field="description">
-          <a-textarea 
-            v-model="form.description" 
-            placeholder="可选：用途说明、备注等"
-            :rows="3"
-          />
-        </a-form-item>
+          <a-form-item label="描述" field="description">
+            <a-textarea 
+              v-model="form.description" 
+              placeholder="可选：用途说明、备注等"
+              :rows="3"
+            />
+          </a-form-item>
 
-        <a-form-item label="权限范围" field="permissions">
-          <a-checkbox-group v-model="form.permissions" :options="permissionOptions" />
-          <div class="form-hint">不选择任何权限则使用账户默认权限</div>
-        </a-form-item>
+          <a-form-item label="权限范围" field="permissions">
+            <a-checkbox-group v-model="form.permissions" :options="permissionOptions" />
+            <div class="form-hint">不选择任何权限则使用账户默认权限</div>
+          </a-form-item>
 
-        <a-form-item label="过期时间" field="expires_in_days">
-          <a-input-number 
-            v-model="form.expires_in_days" 
-            placeholder="天数（留空表示永不过期）"
-            :min="1"
-            :max="36500"
-          />
-          <div class="form-hint">为安全起见，建议设置合理的过期时间</div>
-        </a-form-item>
+          <a-form-item label="过期时间" field="expires_in_days">
+            <a-input-number 
+              v-model="form.expires_in_days" 
+              placeholder="天数（留空表示永不过期）"
+              :min="1"
+              :max="36500"
+            />
+            <div class="form-hint">为安全起见，建议设置合理的过期时间</div>
+          </a-form-item>
 
-        <a-alert 
-          v-if="modalTitle === '创建 Access Key'"
-          type="warning"
-          show-icon
-        >
-          创建后，Secret Key 只会显示一次，请妥善保管！
-        </a-alert>
-      </a-form>
+          <a-alert 
+            v-if="modalTitle === '创建 Access Key'"
+            type="warning"
+            show-icon
+          >
+            创建后，Secret Key 只会显示一次，请妥善保管！
+          </a-alert>
+        </a-form>
     </a-modal>
   </div>
 </template>
 
 <style scoped>
-.ak-management {
-  padding: 20px;
-}
-
 .form-hint {
   font-size: 12px;
   color: #999;

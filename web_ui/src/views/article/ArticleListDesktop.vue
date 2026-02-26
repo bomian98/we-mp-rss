@@ -1,5 +1,5 @@
 <template>
-  <a-spin :loading="fullLoading" tip="正在刷新..." size="large">
+  <a-spin :loading="fullLoading" tip="正在刷新..." size="large" style="width: 100%; display: block;">
     <a-layout class="article-list">
       
       <a-layout-sider class="mp-sider" :width="300">
@@ -172,19 +172,19 @@
           </template>
         </a-page-header>
 
-        <a-card style="border:0">
-          <a-alert type="success" closable>{{ activeFeed?.mp_intro || "请选择一个公众号码进行管理,搜索文章后再点击订阅会有惊喜哟！！！" }}</a-alert>
+        <a-card class="article-main-card" :bordered="false">
+          <a-alert class="article-intro-alert" type="success" closable>{{ activeFeed?.mp_intro || "请选择一个公众号码进行管理，搜索文章后点击订阅即可开始内容同步。" }}</a-alert>
           <div class="search-bar">
             <a-input-search v-model="searchText" placeholder="搜索文章标题" @search="handleSearch" @keyup.enter="handleSearch"
               allow-clear />
           </div>
-          <div ref="tableWrapRef" class="article-table-wrap">
+          <div class="article-table-wrap">
           <a-table
             :columns="columns"
             :data="articles"
             :loading="loading"
             :pagination="pagination"
-            :scroll="{ x: tableScrollX }"
+            :scroll="{ x: TABLE_MIN_WIDTH }"
             :row-selection="{
               type: 'checkbox',
               showCheckedAll: true,
@@ -200,11 +200,15 @@
           >
             <template #empty>
               <div class="article-empty">
-                <div class="article-empty-icon">
-                  <icon-inbox />
+                <div class="article-empty-illustration" aria-hidden="true">
+                  <div class="article-empty-blob"></div>
+                  <div class="article-empty-icon">
+                    <icon-inbox />
+                  </div>
                 </div>
-                <p class="article-empty-title">暂无文章</p>
-                <p class="article-empty-desc">选择左侧公众号查看文章，或先添加公众号并订阅后刷新</p>
+                <p class="article-empty-kicker">内容准备中</p>
+                <p class="article-empty-title">还没有订阅内容</p>
+                <p class="article-empty-desc">先添加一个公众号并完成订阅，系统会在下次刷新后展示最新文章。</p>
                 <a-button type="primary" size="small" @click="showAddModal" class="article-empty-btn">
                   <template #icon><icon-plus /></template>
                   去添加公众号
@@ -268,7 +272,7 @@
 <script setup lang="ts">
 import { Avatar } from '@/utils/constants'
 import { translatePage, setCurrentLanguage } from '@/utils/translate';
-import { ref, onMounted, onUnmounted, h, nextTick, watch, computed } from 'vue'
+import { ref, onMounted, h, watch, computed } from 'vue'
 import axios from 'axios'
 import { IconApps, IconAtt, IconDelete, IconEdit, IconEye, IconRefresh, IconScan, IconWeiboCircleFill, IconWifi, IconCode, IconCheck, IconClose, IconStop, IconPlayArrow, IconCopy, IconPlus, IconDown, IconExport, IconImport, IconShareExternal } from '@arco-design/web-vue/es/icon'
 import { getArticles, deleteArticle as deleteArticleApi, ClearArticle, ClearDuplicateArticle, getArticleDetail, toggleArticleReadStatus } from '@/api/article'
@@ -285,13 +289,9 @@ import { ProxyImage } from '@/utils/constants'
 
 const articles = ref([])
 const loading = ref(false)
-// 除「文章标题」外固定列宽之和（含行选复选框 50）：50+56+120+136+136+100=598；日期列实际用 17ch 在样式中
-const FIXED_COLUMNS_WIDTH = 598
+// 标题列最小宽度；固定列合计 598px（50+56+120+136+136+100），总最小宽度 958px
 const TITLE_MIN_WIDTH = 360
-const TABLE_MIN_WIDTH = FIXED_COLUMNS_WIDTH + TITLE_MIN_WIDTH
-// 表格横向宽度：宽屏铺满容器；窄屏下不小于最小总宽，出现横向滚动
-const tableScrollX = ref(TABLE_MIN_WIDTH)
-const tableWrapRef = ref<HTMLElement | null>(null)
+const TABLE_MIN_WIDTH = 958
 const mpList = ref([])
 const mpLoading = ref(false)
 const activeMpId = ref('')
@@ -315,6 +315,7 @@ const pagination = ref({
   current: 1,
   pageSize: 10,
   total: 0,
+  hideOnSinglePage: false,
   showTotal: true,
   showJumper: true,
   showPageSize: true,
@@ -328,15 +329,12 @@ const statusTextMap = {
 }
 
 const statusColorMap = {
-  published: 'green',
-  draft: 'orange',
-  deleted: 'red'
+  published: '#2f9e84',
+  draft: '#d08a2f',
+  deleted: '#ca6060'
 }
 
-const columns = computed(() => {
-  // 标题列 = 表格总宽 - 固定列宽之和，宽屏下自动变宽铺满；窄屏时至少 TITLE_MIN_WIDTH
-  const titleWidth = Math.max(TITLE_MIN_WIDTH, tableScrollX.value - FIXED_COLUMNS_WIDTH)
-  return [
+const columns = [
     {
       title: '已阅',
       dataIndex: 'is_read',
@@ -364,7 +362,7 @@ const columns = computed(() => {
     {
       title: '文章标题',
       dataIndex: 'title',
-      width: titleWidth,
+      minWidth: TITLE_MIN_WIDTH,
       ellipsis: { showTitle: true },
       render: ({ record }: { record: { title: string; id: string; url?: string; is_read: number } }) => h('a', {
         href: issourceUrl.value ? record.url || '#' : "/views/article/" + record.id,
@@ -424,7 +422,6 @@ const columns = computed(() => {
       width: 100
     }
   ]
-})
 
 const handleMpPageChange = (page: number, pageSize: number) => {
   mpPagination.value.current = page
@@ -767,28 +764,13 @@ const handleExportShow = async () => {
 }
 
 
-const updateTableScrollX = () => {
-  if (!tableWrapRef.value) return
-  const width = tableWrapRef.value.clientWidth || tableWrapRef.value.getBoundingClientRect().width || TABLE_MIN_WIDTH
-  tableScrollX.value = Math.max(TABLE_MIN_WIDTH, Math.floor(width))
-}
-
 onMounted(() => {
-  console.log('组件挂载，开始获取数据')
-  initIssourceUrl() // 初始化 issourceUrl 值
+  initIssourceUrl()
   fetchMpList().then(() => {
-    console.log('公众号列表获取完成')
     fetchArticles()
   }).catch(err => {
     console.error('初始化失败:', err)
   })
-  nextTick(() => {
-    updateTableScrollX()
-    window.addEventListener('resize', updateTableScrollX)
-  })
-})
-onUnmounted(() => {
-  window.removeEventListener('resize', updateTableScrollX)
 })
 
 const fetchMpList = async () => {
@@ -1002,16 +984,11 @@ const toggleReadStatus = async (record: any) => {
 </script>
 
 <style scoped>
-.article-list {
-  /* height: calc(100vh - 186px); */
-}
-
 /* ========== 左侧公众号栏目（设计系统统一） ========== */
-/* 整块布局给固定高度，侧栏才能撑满；主区域随窗口宽度适配 */
+/* 整块布局给固定高度（导航栏 56px），侧栏撑满；右侧内容区可纵向滚动 */
 .article-list {
-  /* 扣除主布局内容区的上下内边距，避免页面整体再出现一条外层滚动条 */
-  height: calc(100vh - 104px - var(--space-lg) - var(--space-xl));
-  max-height: calc(100vh - 104px - var(--space-lg) - var(--space-xl));
+  height: calc(100dvh - 56px);
+  max-height: calc(100dvh - 56px);
   min-height: 0;
   display: flex;
   width: 100%;
@@ -1019,37 +996,49 @@ const toggleReadStatus = async (record: any) => {
   overflow: hidden;
 }
 
-/* 右侧主内容区：占满剩余宽度、可收缩，溢出在 .article-list-content 内横向滚动 */
+/* 右侧布局内容：占满剩余宽度；具体滚动由 .article-list-content 控制 */
 .article-list :deep(.arco-layout-content) {
   flex: 1;
   min-width: 0;
-  overflow: hidden;
 }
 
 .article-list-content {
   padding: var(--space-lg);
+  height: 100%;
   width: 100%;
   min-width: 0;
   flex: 1;
-  overflow-x: hidden;
-  overflow-y: hidden;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   box-sizing: border-box;
+  background: var(--color-bg-layer);
+  border-radius: var(--radius-lg);
 }
 
 .article-page-header {
-  margin-bottom: var(--space-lg);
+  margin-bottom: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-light);
+  background: var(--color-bg-elevated);
+  box-shadow: var(--shadow-sm);
 }
 .article-page-header :deep(.arco-page-header-title) {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: var(--color-text-primary);
+}
+.article-page-header :deep(.arco-page-header-content) {
+  padding-top: var(--space-xs);
 }
 
 /* 侧栏根节点占满高度 */
 .mp-sider {
-  background: var(--color-bg-elevated) !important;
+  background: var(--color-bg-layer) !important;
   padding: 0 !important;
-  border-right: 1px solid var(--color-border-light) !important;
+  border-right: 1px solid var(--color-border) !important;
   display: flex;
   flex-direction: column;
   height: 100% !important;
@@ -1070,7 +1059,8 @@ const toggleReadStatus = async (record: any) => {
   min-height: 0;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
-  border: 1px solid var(--color-border-light);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-elevated);
 }
 
 .mp-sider-card :deep(.arco-card-body) {
@@ -1084,7 +1074,7 @@ const toggleReadStatus = async (record: any) => {
 .mp-sider-card :deep(.arco-card-header) {
   padding: var(--space-sm) var(--space-lg);
   border-bottom: 1px solid var(--color-border-light);
-  background: var(--color-bg-elevated);
+  background: linear-gradient(180deg, var(--color-bg-elevated) 0%, var(--color-bg-brand-soft) 100%);
   font-weight: 600;
   font-size: 1rem;
   color: var(--color-text-primary);
@@ -1097,8 +1087,8 @@ const toggleReadStatus = async (record: any) => {
 }
 
 .mp-sider-body {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
   flex: 1;
   min-height: 0;
   background: var(--color-bg-elevated);
@@ -1106,12 +1096,12 @@ const toggleReadStatus = async (record: any) => {
 }
 
 .mp-sider-search {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   flex-shrink: 0;
 }
 
 .mp-sider-filter {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   flex-shrink: 0;
 }
 
@@ -1123,7 +1113,9 @@ const toggleReadStatus = async (record: any) => {
 .mp-sider-list-wrap {
   flex: 1;
   min-height: 0;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: var(--space-xs);
 }
 
 .mp-sider-search :deep(.arco-input-wrapper) {
@@ -1142,13 +1134,12 @@ const toggleReadStatus = async (record: any) => {
 }
 
 .mp-sider-list :deep(.arco-list-item) {
-  border: none !important;
-  border-bottom: 1px solid var(--color-border-light);
+  border: 1px solid transparent !important;
   padding: 10px 12px;
   margin: 0;
   border-radius: var(--radius-sm);
   margin-bottom: 4px;
-  transition: background 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .mp-sider-item {
@@ -1160,6 +1151,7 @@ const toggleReadStatus = async (record: any) => {
 
 .mp-sider-item:hover {
   background: var(--primary-lighter) !important;
+  border-color: rgba(47, 158, 132, 0.2) !important;
 }
 
 .mp-sider-item-inner {
@@ -1193,8 +1185,9 @@ const toggleReadStatus = async (record: any) => {
 }
 
 .active-mp {
-  background: var(--primary-lighter) !important;
+  background: var(--color-bg-brand-soft) !important;
   color: var(--primary-color);
+  border-color: rgba(47, 158, 132, 0.35) !important;
 }
 
 .active-mp .mp-sider-item-name {
@@ -1203,9 +1196,12 @@ const toggleReadStatus = async (record: any) => {
 
 .mp-sider-pagination {
   flex-shrink: 0;
-  margin-top: var(--space-md);
+  margin-top: var(--space-xs);
   padding-top: var(--space-sm);
   border-top: 1px solid var(--color-border-light);
+  background: var(--color-bg-elevated);
+  position: relative;
+  z-index: 1;
 }
 
 .mp-sider-pagination :deep(.arco-pagination-item-active) {
@@ -1217,20 +1213,48 @@ const toggleReadStatus = async (record: any) => {
   overflow: hidden;
 }
 
-/* 表格区域：固定高度，避免无数据时整屏空白；支持横向滚动，窄屏时表格不被遮挡 */
+/* 表格区域：flex 链的最后一环；内部让 arco-table-container 负责纵/横向滚动 */
 .article-table-wrap {
-  min-height: 320px;
-  max-height: calc(100vh - 320px);
-  overflow-x: auto;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  width: 100%;
+  padding: var(--space-sm);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-light);
+  background: var(--color-bg-elevated);
+}
+
+/* Arco 表格根元素撑满 wrap */
+.article-table-wrap :deep(.arco-table) {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   width: 100%;
   min-width: 0;
 }
 
+/* 表头 + 行内容区：可纵向/横向滚动；表头用 sticky 吸顶 */
 .article-table-wrap :deep(.arco-table-container) {
-  min-height: 280px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: auto;
 }
-.article-table-wrap :deep(.arco-table) {
-  min-width: 800px;
+
+/* 分页条：始终贴底，不随行内容滚动 */
+.article-table-wrap :deep(.arco-table-pagination) {
+  flex-shrink: 0;
+  margin-top: var(--space-xs);
+  padding: var(--space-xs) 0 0;
+  background: var(--color-bg-elevated);
+}
+.article-table-wrap :deep(.arco-table-pagination-right) {
+  gap: 6px;
 }
 /* 日期列按字宽 17ch，不同字体下一致；禁止换行 */
 .article-table-wrap :deep(.arco-table-th.col-datetime),
@@ -1255,22 +1279,47 @@ const toggleReadStatus = async (record: any) => {
   min-height: 240px;
   max-height: 280px;
   box-sizing: border-box;
-  background: var(--color-border-light);
+  background: linear-gradient(180deg, var(--color-bg-brand-soft) 0%, var(--color-bg-elevated) 100%);
   border-radius: var(--radius-md);
+  border: 1px dashed var(--color-border);
   margin: var(--space-xs) 0;
 }
 
-.article-empty-icon {
+.article-empty-illustration {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 56px;
-  height: 56px;
-  margin-bottom: var(--space-md);
+  width: 64px;
+  height: 64px;
+  margin-bottom: var(--space-sm);
+}
+
+.article-empty-blob {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, var(--accent-light) 0%, var(--primary-light) 100%);
+}
+
+.article-empty-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  color: var(--primary-color);
+  font-size: 28px;
+  background: rgba(255, 255, 255, 0.88);
+  border-radius: 50%;
+  box-shadow: var(--shadow-sm);
+}
+
+.article-empty-kicker {
+  margin: 0 0 var(--space-xxs);
+  font-size: 12px;
   color: var(--color-text-tertiary);
-  font-size: 40px;
-  background: var(--color-bg-base);
-  border-radius: var(--radius-md);
 }
 
 .article-empty-title {
@@ -1296,6 +1345,32 @@ const toggleReadStatus = async (record: any) => {
 .search-bar {
   display: flex;
   margin-bottom: 20px;
+}
+
+.article-main-card {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-light);
+  background: var(--color-bg-elevated);
+  box-shadow: var(--shadow-sm);
+}
+
+.article-main-card :deep(.arco-card-body) {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-md);
+  overflow: hidden;
+}
+
+.article-intro-alert {
+  margin-bottom: var(--space-sm);
+  border-radius: var(--radius-md);
 }
 
 .arco-drawer-body img {

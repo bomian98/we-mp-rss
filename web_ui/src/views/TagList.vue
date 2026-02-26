@@ -243,9 +243,10 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.load-more{
-    width: 120px;
-    margin: 0px auto;
-    text-align: center;
+.load-more {
+  width: 120px;
+  margin: 0 auto;
+  text-align: center;
 }
+
 </style>

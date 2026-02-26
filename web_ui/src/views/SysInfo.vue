@@ -4,83 +4,83 @@
        <SystemResources :resources="sysInfo.resources" />
     </a-card>
     <a-card :bordered="false" class="sys-info-card" title="文章统计">
-      <a-descriptions bordered :column="{ xs: 1, sm: 1, md: 1, lg: 2 }">
-         <a-descriptions-item label="公众号总数">
-          <template #label> <desktop-outlined /> 公众号总数 </template>
+      <a-descriptions class="sys-descriptions" bordered :column="{ xs: 1, sm: 1, md: 1, lg: 2 }">
+        <a-descriptions-item label="公众号总数">
+          <template #label><span class="label-with-icon"><icon-desktop /> 公众号总数</span></template>
           {{ sysInfo.article?.mp_all_count || 0 }}
         </a-descriptions-item>
         <a-descriptions-item label="文章总数">
-          <template #label> <desktop-outlined /> 文章总数 </template>
+          <template #label><span class="label-with-icon"><icon-desktop /> 文章总数</span></template>
           {{ sysInfo.article?.all_count || 0 }}
         </a-descriptions-item>
         <a-descriptions-item label="无正文数量">
-          <template #label> <desktop-outlined /> 无正文数量 </template>
+          <template #label><span class="label-with-icon"><icon-desktop /> 无正文数量</span></template>
           {{ sysInfo.article?.no_content_count || 0 }}
         </a-descriptions-item>
         <a-descriptions-item label="有正文数量">
-          <template #label> <desktop-outlined /> 有正文数量 </template>
+          <template #label><span class="label-with-icon"><icon-desktop /> 有正文数量</span></template>
           {{ sysInfo.article?.has_content_count || 0 }}
         </a-descriptions-item>
         <a-descriptions-item label="已删除">
-          <template #label> <desktop-outlined /> 已删除 </template>
+          <template #label><span class="label-with-icon"><icon-desktop /> 已删除</span></template>
           {{ sysInfo.article?.wrong_count || 0 }}
         </a-descriptions-item>
       </a-descriptions>
     </a-card>
     <a-card :bordered="false" class="sys-info-card" title="系统信息">
-      <a-descriptions bordered :column="{ xs: 1, sm: 1, md: 1, lg: 2 }">
+      <a-descriptions class="sys-descriptions" bordered :column="{ xs: 1, sm: 1, md: 1, lg: 2 }">
         <a-descriptions-item label="操作系统">
-          <template #label> <desktop-outlined /> 操作系统 </template>
+          <template #label><span class="label-with-icon"><icon-desktop /> 操作系统</span></template>
           {{ sysInfo.os.name }}
         </a-descriptions-item>
         <a-descriptions-item label="Docker版本">
-          <template #label> <desktop-outlined /> Docker版本 </template>
+          <template #label><span class="label-with-icon"><icon-desktop /> Docker版本</span></template>
           {{ sysInfo.os.docker_version }}
         </a-descriptions-item>
         <a-descriptions-item label="系统版本">
-          <template #label> <code-outlined /> 系统版本 </template>
+          <template #label><span class="label-with-icon"><icon-code /> 系统版本</span></template>
           {{ sysInfo.os.version }} ({{ sysInfo.os.release }})
         </a-descriptions-item>
         <a-descriptions-item label="Python版本">
-          <template #label> <code-outlined /> Python版本 </template>
+          <template #label><span class="label-with-icon"><icon-code /> Python版本</span></template>
           {{ sysInfo.python_version }}
         </a-descriptions-item>
         <a-descriptions-item label="运行时间">
-          <template #label> <clock-circle-outlined /> 运行时间 </template>
+          <template #label><span class="label-with-icon"><icon-clock-circle /> 运行时间</span></template>
           {{ formatUptime(sysInfo.uptime) }}
         </a-descriptions-item>
         <a-descriptions-item label="系统架构">
-          <template #label> <deployment-unit-outlined /> 系统架构 </template>
+          <template #label><span class="label-with-icon"><icon-branch /> 系统架构</span></template>
           {{ sysInfo.system.node }} / {{ sysInfo.system.machine }} ({{
             sysInfo.system.processor
           }})
         </a-descriptions-item>
         <a-descriptions-item label="TOKEN">
-          <template #label> <api-outlined /> TOKEN </template>
+          <template #label><span class="label-with-icon"><icon-safe /> TOKEN</span></template>
           {{ sysInfo.wx.token }}
         </a-descriptions-item>
         <a-descriptions-item label="过期时间">
-          <template #label> <api-outlined /> 过期时间 </template>
+          <template #label><span class="label-with-icon"><icon-safe /> 过期时间</span></template>
           {{ !sysInfo.wx.login? '未登录': sysInfo.wx.expiry_time }}
         </a-descriptions-item>
         <a-descriptions-item label="API版本">
-          <template #label> <api-outlined /> API版本 </template>
+          <template #label><span class="label-with-icon"><icon-safe /> API版本</span></template>
           {{ sysInfo.api_version }}
         </a-descriptions-item>
         <a-descriptions-item label="队列状态">
-          <template #label> <api-outlined /> 队列状态 </template>
+          <template #label><span class="label-with-icon"><icon-safe /> 队列状态</span></template>
           {{ sysInfo.queue.is_running || false }}
         </a-descriptions-item>
         <a-descriptions-item label="队列数量">
-          <template #label> <api-outlined /> 挂起队列数量 </template>
+          <template #label><span class="label-with-icon"><icon-safe /> 挂起队列数量</span></template>
           {{ sysInfo.queue.pending_tasks || 0 }}
         </a-descriptions-item>
         <a-descriptions-item label="核心版本">
-          <template #label> <appstore-outlined /> 核心版本 </template>
+          <template #label><span class="label-with-icon"><icon-apps /> 核心版本</span></template>
           {{ sysInfo.core_version }}
         </a-descriptions-item>
         <a-descriptions-item label="最新版本">
-          <template #label> <cloud-download-outlined /> 最新版本 </template>
+          <template #label><span class="label-with-icon"><icon-cloud-download /> 最新版本</span></template>
           {{ sysInfo.latest_version }}
           <!-- 添加点击事件 -->
           <a-button
@@ -153,7 +153,6 @@ onMounted(async () => {
 }
 
 .sys-info-card {
-  margin-bottom: 16px;
   border-radius: 8px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
   transition: all 0.3s ease;
@@ -166,30 +165,40 @@ onMounted(async () => {
   transform: translateY(-2px);
 }
 
-.sys-info-card :deep(.ant-card-head) {
+.sys-info-card :deep(.arco-card-header) {
   border-bottom: none;
 }
 
-.sys-info-card :deep(.ant-descriptions-item-label) {
-  display: flex;
+.label-with-icon {
+  display: inline-flex;
   align-items: center;
   gap: 8px;
   font-weight: 500;
 }
 
-.sys-info-card :deep(.ant-descriptions-item-content) {
+.sys-info-card :deep(.arco-descriptions-item-value-block),
+.sys-info-card :deep(.arco-descriptions-item-value-inline) {
   color: var(--color-text-1);
 }
 
-.sys-info-card :deep(.anticon) {
+.sys-descriptions :deep(.arco-descriptions-item-label-block) {
+  width: 180px;
+  min-width: 180px;
+  white-space: nowrap;
+}
+
+.sys-descriptions :deep(.arco-descriptions-item-value-block) {
+  word-break: break-word;
+}
+
+.sys-info-card :deep(.arco-icon) {
   font-size: 16px;
 }
 
-.sys-info-card :deep(.ant-descriptions-row) {
-  padding: 12px 0;
-}
-
-.sys-info-card :deep(.ant-descriptions-item) {
-  padding-bottom: 0;
+@media (max-width: 768px) {
+  .sys-descriptions :deep(.arco-descriptions-item-label-block) {
+    width: 140px;
+    min-width: 140px;
+  }
 }
 </style>
