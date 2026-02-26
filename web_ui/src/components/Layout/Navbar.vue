@@ -1,5 +1,5 @@
 <template>
-  <a-layout-header>
+  <a-layout-header class="navbar-header">
     <a-menu
       mode="horizontal"
       :selected-keys="selectedKeys"
@@ -76,3 +76,37 @@ const handleMenuClick = (key: string) => {
   router.push(key)
 }
 </script>
+
+<style scoped>
+.navbar-header {
+  padding: 0 16px;
+  height: 48px;
+  line-height: 48px;
+  background: var(--color-bg-elevated, #fff);
+  border-bottom: 1px solid var(--color-border-light, #f5f5f4);
+}
+
+:deep(.arco-menu-horizontal) {
+  border-bottom: none;
+  background: transparent;
+}
+/* 去掉 Arco 自带的蓝色选中指示条 (div.arco-menu-selected-label)，只保留绿色下划线 */
+:deep(.arco-menu-horizontal .arco-menu-selected-label) {
+  background: transparent !important;
+}
+:deep(.arco-menu-horizontal .arco-menu-item) {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary, #57534e);
+  transition: color 0.2s ease, background 0.2s ease;
+}
+:deep(.arco-menu-horizontal .arco-menu-item:hover) {
+  color: var(--primary-color, #0d9488);
+  background: var(--primary-lighter, #f0fdfa);
+}
+:deep(.arco-menu-horizontal .arco-menu-item.arco-menu-selected) {
+  color: var(--primary-color, #0d9488);
+  font-weight: 600;
+  border-bottom: 2px solid var(--primary-color, #0d9488);
+}
+</style>

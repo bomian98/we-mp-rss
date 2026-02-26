@@ -1,4 +1,6 @@
-/* 全局样式 */
+/* ========== 设计系统：微信公众号订阅助手 ========== */
+/* 方向：Refined + Editorial — 清晰、可读、有辨识度 */
+
 * {
   margin: 0;
   padding: 0;
@@ -8,10 +10,10 @@
 html, body {
   width: 100%;
   height: 100%;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color: var(--color-text-primary);
 }
 
 #app {
@@ -19,27 +21,33 @@ html, body {
   height: 100%;
 }
 
-/* 链接样式 */
-a {
-  color: #165DFF;
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-/* 自定义ArcoDesign主题变量 */
+/* ========== 设计令牌 ========== */
 :root {
-  --primary-color: #165DFF;
-  --success-color: #00B42A;
-  --warning-color: #FF7D00;
-  --danger-color: #F53F3F;
-}
+  /* 主色：青绿/订阅感，替代通用蓝 */
+  --primary-color: #0d9488;
+  --primary-hover: #0f766e;
+  --primary-light: #ccfbf1;
+  --primary-lighter: #f0fdfa;
 
-/* ========== 设计系统变量 ========== */
-:root {
-  /* 间距系统 */
+  /* Arco 覆盖 */
+  --primary-6: #0d9488;
+  --primary-5: #14b8a6;
+  --primary-7: #0f766e;
+
+  --success-color: #059669;
+  --warning-color: #d97706;
+  --danger-color: #dc2626;
+
+  /* 中性色：偏暖灰 */
+  --color-text-primary: #1c1917;
+  --color-text-secondary: #57534e;
+  --color-text-tertiary: #78716c;
+  --color-bg-base: #fafaf9;
+  --color-bg-elevated: #ffffff;
+  --color-border: #e7e5e4;
+  --color-border-light: #f5f5f4;
+
+  /* 间距 */
   --space-xxs: 0.25rem;
   --space-xs: 0.5rem;
   --space-sm: 0.75rem;
@@ -48,85 +56,60 @@ a:hover {
   --space-xl: 2rem;
   --space-xxl: 3rem;
 
-  /* 响应式断点 */
   --breakpoint-sm: 576px;
   --breakpoint-md: 768px;
   --breakpoint-lg: 992px;
   --breakpoint-xl: 1200px;
 
-  /* 颜色层次 */
-  --color-primary-light: #e8f1ff;
-  --color-primary-lighter: #f5f8ff;
-  --color-text-primary: #1d2129;
-  --color-text-secondary: #4e5969;
-  --color-text-tertiary: #86909c;
-  --color-bg-light: #f7f8fa;
-  --color-border-light: #f2f3f5;
+  /* 圆角与阴影 */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --shadow-sm: 0 1px 2px rgba(28, 25, 23, 0.06);
+  --shadow-md: 0 4px 12px rgba(28, 25, 23, 0.08);
+  --shadow-lg: 0 12px 28px rgba(28, 25, 23, 0.1);
 }
 
-/* ========== 新增美化样式 ========== */
-/* 响应式容器 */
+/* 链接 */
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+a:hover {
+  color: var(--primary-hover);
+  text-decoration: underline;
+}
+
+/* ========== 布局与容器 ========== */
 .container {
   width: 100%;
   padding: 0 var(--space-md);
   margin: 0 auto;
 }
-@media (min-width: 576px) {
-  .container {
-    max-width: 540px;
-  }
-}
-@media screen and (max-width:768px) {
- .arco-modal{
-  width:80% !important;
- }
-}
-@media (min-width: 768px) {
-  .container {
-    max-width: 720px;
-  }
-}
-@media (min-width: 992px) {
-  .container {
-    max-width: 960px;
-  }
-}
-@media (min-width: 1200px) {
-  .container {
-    max-width: 1140px;
-  }
-}
+@media (min-width: 576px) { .container { max-width: 540px; } }
+@media (min-width: 768px) { .container { max-width: 720px; } }
+@media (min-width: 992px) { .container { max-width: 960px; } }
+@media (min-width: 1200px) { .container { max-width: 1140px; } }
 
-/* 页面过渡动画 */
+/* ========== 动效 ========== */
 .page-enter-active,
 .page-leave-active {
-  transition: opacity 0.3s ease;
+  transition: opacity 0.25s ease;
 }
 .page-enter-from,
 .page-leave-to {
   opacity: 0;
 }
 
-/* 按钮悬停效果 */
-.button-hover {
-  transition: all 0.2s ease;
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
-.button-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-/* 卡片动画 */
-.card {
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+.fade-in {
+  animation: fadeIn 0.4s ease forwards;
 }
 
-/* 加载动画 */
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
@@ -134,93 +117,45 @@ a:hover {
   animation: spin 1s linear infinite;
 }
 
-/* 增强卡片样式 */
+/* ========== 组件增强（与设计系统一致） ========== */
 .enhanced-card {
-  background: white;
-  border-radius: 12px;
+  background: var(--color-bg-elevated);
+  border-radius: var(--radius-lg);
   padding: var(--space-lg);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: var(--shadow-sm);
   border: 1px solid var(--color-border-light);
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
 }
 .enhanced-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
   transform: translateY(-2px);
 }
 
-/* 增强按钮样式 */
-.enhanced-button {
-  padding: var(--space-sm) var(--space-md);
-  border-radius: 6px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  border: none;
-  cursor: pointer;
-}
-.enhanced-button--primary {
-  background: var(--primary-color);
-  color: white;
-}
-.enhanced-button--primary:hover {
-  background: #0e4acc;
-  box-shadow: 0 2px 8px rgba(22, 93, 255, 0.3);
-}
-
-/* 增强表单元素 */
-.enhanced-input {
-  padding: var(--space-sm) var(--space-md);
-  border: 1px solid var(--color-border-light);
-  border-radius: 6px;
-  transition: all 0.2s ease;
-}
-.enhanced-input:focus {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(22, 93, 255, 0.1);
-  outline: none;
-}
-
-/* 文字渐变效果 */
-.text-gradient {
-  background: linear-gradient(90deg, var(--primary-color), var(--success-color));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-/* 输入框焦点效果 */
-.input-focus:focus {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(22, 93, 255, 0.2);
-  transition: all 0.3s ease;
-}
-
-/* 表格行悬停效果 */
+/* 表格行悬停 */
 .table-row:hover {
-  background-color: rgba(22, 93, 255, 0.05);
+  background-color: var(--primary-lighter);
   transition: background-color 0.2s ease;
 }
 
-/* 淡入动画 */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-.fade-in {
-  animation: fadeIn 0.5s ease forwards;
+/* ========== 弹窗移动端 ========== */
+@media screen and (max-width: 768px) {
+  .arco-modal {
+    width: 90% !important;
+  }
 }
 
-
-#translate{
-    display: none !important;
-    position: fixed;
-    top: 105px;
-    right: 40px;
-    z-index: 1000;
+/* ========== 翻译控件 ========== */
+#translate {
+  display: none !important;
+  position: fixed;
+  top: 105px;
+  right: 40px;
+  z-index: 1000;
 }
-@media screen and (max-width:768px) {
-#translate{
+@media screen and (max-width: 768px) {
+  #translate {
     position: fixed;
     top: 135px;
     left: 44px;
-}
+  }
 }

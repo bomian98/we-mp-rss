@@ -2,13 +2,11 @@
   <a-spin :loading="fullLoading" tip="正在刷新..." size="large">
     <a-layout class="article-list">
       
-      <a-layout-sider :width="300"
-        :style="{ background: '#fff', padding: '0', borderRight: '1px solid #eee', display: 'flex', flexDirection: 'column', border: 0 }">
-        <a-card :bordered="false" title="公众号"
-          :headStyle="{ padding: '12px 16px', borderBottom: '1px solid #eee', background: '#fff', zIndex: 1, border: 0 }">
+      <a-layout-sider class="mp-sider" :width="300">
+        <a-card class="mp-sider-card" :bordered="false" title="公众号">
           <template #extra>
             <a-dropdown>
-              <a-button type="primary">
+              <a-button type="primary" class="mp-sider-btn-sub">
                 <template #icon><icon-plus /></template>
                 订阅
                 <icon-down />
@@ -21,53 +19,80 @@
               </template>
             </a-dropdown>
           </template>
-          <div style="display: flex; flex-direction: column;; background: #fff">
-            <div style="margin-bottom: 12px;">
-              <a-input-search 
-                v-model="mpSearchText" 
-                placeholder="搜索公众号名称" 
-                @search="handleMpSearch" 
+          <div class="mp-sider-body">
+            <div class="mp-sider-search">
+              <a-input-search
+                v-model="mpSearchText"
+                placeholder="搜索公众号名称"
+                @search="handleMpSearch"
                 @keyup.enter="handleMpSearch"
-                allow-clear 
-                size="small" />
+                allow-clear
+                size="small"
+              />
             </div>
-            <div style="margin-bottom: 8px; padding: 0 8px;">
-              <a-radio-group v-model="mpFilterType" type="button" size="small" style="width: 100%;">
-                <a-radio value="active" style="flex: 1; text-align: center;">启用</a-radio>
-                <a-radio value="disabled" style="flex: 1; text-align: center;">停用</a-radio>
-                <a-radio value="all" style="flex: 1; text-align: center;">全部</a-radio>
+            <div class="mp-sider-filter">
+              <a-radio-group v-model="mpFilterType" type="button" size="small" class="mp-sider-radio">
+                <a-radio value="active">启用</a-radio>
+                <a-radio value="disabled">停用</a-radio>
+                <a-radio value="all">全部</a-radio>
               </a-radio-group>
             </div>
-            <a-list :data="filteredMpList" :loading="mpLoading" bordered>
-              <template #item="{ item, index }">
-                <a-list-item @click="handleMpClick(item.id)" :class="{ 'active-mp': activeMpId === item.id }"
-                  style="padding: 9px 8px; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
-                  <div style="display: flex; align-items: center;">
-                    <img :src="Avatar(item.avatar)" width="40" style="float:left;margin-right:1rem;" />
-                    <a-typography-text strong style="line-height:32px;" :style="{ opacity: item.status === 0 ? 0.5 : 1 }">
-                      {{ item.name || item.mp_name }}
-                    </a-typography-text>
-                    <a-button v-if="activeMpId === item.id && item.id != ''" size="mini" type="text" status="danger"
-                      @click="$event.stopPropagation(); deleteMp(item.id)">
-                      <template #icon><icon-delete /></template>
-                    </a-button>
-                    <a-button v-if="activeMpId === item.id && item.id != ''" size="mini" type="text"
-                      @click="$event.stopPropagation(); copyMpId(item.id)">
-                      <template #icon><icon-copy /></template>
-                    </a-button>
-                    <a-button v-if="activeMpId === item.id && item.id != ''" size="mini" type="text"
-                      @click="$event.stopPropagation(); toggleMpStatus(item.id, item.status === 1 ? 0 : 1)">
-                      <template #icon>
-                        <icon-stop v-if="item.status === 1" />
-                        <icon-play-arrow v-else />
-                      </template>
-                    </a-button>
-                  </div>
-                </a-list-item>
-              </template>
-            </a-list>
-            <a-pagination :total="mpPagination.total" simple @change="handleMpPageChange" :show-total="true"
-              style="margin-top: 1rem;" />
+            <div class="mp-sider-list-wrap">
+              <a-list class="mp-sider-list" :data="filteredMpList" :loading="mpLoading">
+                <template #item="{ item, index }">
+                  <a-list-item
+                    class="mp-sider-item"
+                    :class="{ 'active-mp': activeMpId === item.id }"
+                    @click="handleMpClick(item.id)"
+                  >
+                    <div class="mp-sider-item-inner">
+                      <img :src="Avatar(item.avatar)" class="mp-sider-item-avatar" alt="" />
+                      <a-typography-text class="mp-sider-item-name" strong :style="{ opacity: item.status === 0 ? 0.5 : 1 }">
+                        {{ item.name || item.mp_name }}
+                      </a-typography-text>
+                      <a-button
+                        v-if="activeMpId === item.id && item.id != ''"
+                        size="mini"
+                        type="text"
+                        status="danger"
+                        class="mp-sider-item-action"
+                        @click="$event.stopPropagation(); deleteMp(item.id)"
+                      >
+                        <template #icon><icon-delete /></template>
+                      </a-button>
+                      <a-button
+                        v-if="activeMpId === item.id && item.id != ''"
+                        size="mini"
+                        type="text"
+                        class="mp-sider-item-action"
+                        @click="$event.stopPropagation(); copyMpId(item.id)"
+                      >
+                        <template #icon><icon-copy /></template>
+                      </a-button>
+                      <a-button
+                        v-if="activeMpId === item.id && item.id != ''"
+                        size="mini"
+                        type="text"
+                        class="mp-sider-item-action"
+                        @click="$event.stopPropagation(); toggleMpStatus(item.id, item.status === 1 ? 0 : 1)"
+                      >
+                        <template #icon>
+                          <icon-stop v-if="item.status === 1" />
+                          <icon-play-arrow v-else />
+                        </template>
+                      </a-button>
+                    </div>
+                  </a-list-item>
+                </template>
+              </a-list>
+            </div>
+            <a-pagination
+              class="mp-sider-pagination"
+              :total="mpPagination.total"
+              simple
+              @change="handleMpPageChange"
+              :show-total="true"
+            />
           </div>
         </a-card>
       </a-layout-sider>
@@ -153,14 +178,39 @@
             <a-input-search v-model="searchText" placeholder="搜索文章标题" @search="handleSearch" @keyup.enter="handleSearch"
               allow-clear />
           </div>
-          <a-table :columns="columns" :data="articles" :loading="loading" :pagination="pagination" :row-selection="{
-            type: 'checkbox',
-            showCheckedAll: true,
-            width: 50,
-            fixed: true,
-            checkStrictly: true,
-            onlyCurrent: false
-          }" row-key="id" @page-change="handlePageChange" @page-size-change="handlePageSizeChange" v-model:selectedKeys="selectedRowKeys">
+          <div class="article-table-wrap">
+          <a-table
+            :columns="columns"
+            :data="articles"
+            :loading="loading"
+            :pagination="pagination"
+            :scroll="{ y: tableScrollY }"
+            :row-selection="{
+              type: 'checkbox',
+              showCheckedAll: true,
+              width: 50,
+              fixed: true,
+              checkStrictly: true,
+              onlyCurrent: false
+            }"
+            row-key="id"
+            @page-change="handlePageChange"
+            @page-size-change="handlePageSizeChange"
+            v-model:selectedKeys="selectedRowKeys"
+          >
+            <template #empty>
+              <div class="article-empty">
+                <div class="article-empty-icon">
+                  <icon-inbox />
+                </div>
+                <p class="article-empty-title">暂无文章</p>
+                <p class="article-empty-desc">选择左侧公众号查看文章，或先添加公众号并订阅后刷新</p>
+                <a-button type="primary" size="small" @click="showAddModal" class="article-empty-btn">
+                  <template #icon><icon-plus /></template>
+                  去添加公众号
+                </a-button>
+              </div>
+            </template>
             <template #status="{ record }">
               <a-tag :color="statusColorMap[record.status]">
                 {{ statusTextMap[record.status] }}
@@ -177,7 +227,7 @@
               </a-space>
             </template>
           </a-table>
-
+          </div>
 
           <a-modal v-model:visible="refreshModalVisible" title="刷新设置">
             <a-form :model="refreshForm" :rules="refreshRules">
@@ -235,6 +285,7 @@ import { ProxyImage } from '@/utils/constants'
 
 const articles = ref([])
 const loading = ref(false)
+const tableScrollY = ref(420)
 const mpList = ref([])
 const mpLoading = ref(false)
 const activeMpId = ref('')
@@ -929,8 +980,239 @@ const toggleReadStatus = async (record: any) => {
   /* height: calc(100vh - 186px); */
 }
 
+/* ========== 左侧公众号栏目（设计系统统一） ========== */
+/* 整块布局给固定高度，侧栏才能撑满 */
+.article-list {
+  height: calc(100vh - 108px);
+  min-height: calc(100vh - 108px);
+  display: flex;
+}
+
+/* 侧栏根节点占满高度 */
+.mp-sider {
+  background: var(--color-bg-elevated, #fff) !important;
+  padding: 0 !important;
+  border-right: 1px solid var(--color-border-light, #f5f5f4) !important;
+  display: flex;
+  flex-direction: column;
+  height: 100% !important;
+}
+
+/* Arco 侧栏内部包裹层：必须占满高度并 flex，卡片才能 flex:1 到底 */
+.mp-sider :deep(.arco-layout-sider-children) {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.mp-sider-card {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.mp-sider-card :deep(.arco-card-body) {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 14px 16px;
+}
+
+.mp-sider-card :deep(.arco-card-header) {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--color-border-light, #f5f5f4);
+  background: var(--color-bg-elevated, #fff);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--color-text-primary, #1c1917);
+  flex-shrink: 0;
+}
+
+.mp-sider-btn-sub {
+  font-weight: 500;
+  border-radius: var(--radius-md, 10px);
+}
+
+.mp-sider-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  background: var(--color-bg-elevated, #fff);
+  padding: 0 2px;
+}
+
+.mp-sider-search {
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
+.mp-sider-filter {
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
+.mp-sider-radio {
+  width: 100%;
+}
+
+/* 列表区域占满剩余空间，无数据时把「共0条」顶到底部 */
+.mp-sider-list-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.mp-sider-search :deep(.arco-input-wrapper) {
+  border-radius: var(--radius-md, 10px);
+  border-color: var(--color-border-light, #f5f5f4);
+  background: var(--color-bg-base, #fafaf9);
+}
+.mp-sider-search :deep(.arco-input-wrapper:hover),
+.mp-sider-search :deep(.arco-input-wrapper:focus-within) {
+  border-color: var(--primary-color, #0d9488);
+  background: #fff;
+}
+
+.mp-sider-list {
+  border: none !important;
+}
+
+.mp-sider-list :deep(.arco-list-item) {
+  border: none !important;
+  border-bottom: 1px solid var(--color-border-light, #f5f5f4);
+  padding: 10px 12px;
+  margin: 0;
+  border-radius: var(--radius-sm, 6px);
+  margin-bottom: 4px;
+  transition: background 0.2s ease;
+}
+
+.mp-sider-item {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mp-sider-item:hover {
+  background: var(--primary-lighter, #f0fdfa) !important;
+}
+
+.mp-sider-item-inner {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  flex: 1;
+}
+
+.mp-sider-item-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm, 6px);
+  object-fit: cover;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.mp-sider-item-name {
+  line-height: 32px;
+  color: var(--color-text-primary, #1c1917);
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mp-sider-item-action {
+  flex-shrink: 0;
+  margin-left: 4px;
+}
+
+.active-mp {
+  background: var(--primary-lighter, #f0fdfa) !important;
+  color: var(--primary-color, #0d9488);
+}
+
+.active-mp .mp-sider-item-name {
+  color: var(--primary-color, #0d9488);
+}
+
+.mp-sider-pagination {
+  flex-shrink: 0;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border-light, #f5f5f4);
+}
+
+.mp-sider-pagination :deep(.arco-pagination-item-active) {
+  background: var(--primary-color, #0d9488) !important;
+  border-color: var(--primary-color, #0d9488) !important;
+}
+
 .a-layout-sider {
   overflow: hidden;
+}
+
+/* 表格区域：固定高度，避免无数据时整屏空白 */
+.article-table-wrap {
+  min-height: 320px;
+  max-height: calc(100vh - 320px);
+}
+
+.article-table-wrap :deep(.arco-table-container) {
+  min-height: 280px;
+}
+
+/* 自定义空状态：紧凑、有引导，不占满整屏 */
+.article-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  min-height: 240px;
+  max-height: 280px;
+  box-sizing: border-box;
+  background: var(--color-bg-2, #f7f8fa);
+  border-radius: 10px;
+  margin: 8px 0;
+}
+
+.article-empty-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 16px;
+  color: var(--color-text-3, #86909c);
+  font-size: 40px;
+  background: var(--color-fill-2, #f2f3f5);
+  border-radius: 12px;
+}
+
+.article-empty-title {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-1, #1d2129);
+}
+
+.article-empty-desc {
+  margin: 0 0 20px;
+  font-size: 13px;
+  color: var(--color-text-3, #86909c);
+  text-align: center;
+  line-height: 1.5;
+  max-width: 320px;
+}
+
+.article-empty-btn {
+  flex-shrink: 0;
 }
 
 .a-list-item {

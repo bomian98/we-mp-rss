@@ -13,9 +13,22 @@
     // 设置界面字体（可选）
     "codingcopilot.autoRun": true,
     
-    // Python相关配置
-    "python.defaultInterpreterPath": "E:/conda/envs/werss/python.exe",
-    "python.terminal.activateEnvironment": true,
+    // Python相关配置（wemprss 环境）
+    "python.defaultInterpreterPath": "C:/Users/wang/anaconda3/envs/wemprss/python.exe",
+    "python.terminal.activateEnvironment": false,
     "python.analysis.autoImportCompletions": true,
-    "python.analysis.typeCheckingMode": "basic"
+    "python.analysis.typeCheckingMode": "basic",
+
+    // 终端默认使用 PowerShell，启动时自动激活 conda wemprss 环境
+    "terminal.integrated.defaultProfile.windows": "PowerShell",
+    "terminal.integrated.profiles.windows": {
+        "PowerShell": {
+            "source": "PowerShell",
+            "args": [
+                "-NoExit",
+                "-Command",
+                "& 'C:\\Users\\wang\\anaconda3\\shell\\condabin\\conda-hook.ps1'; conda activate wemprss"
+            ]
+        }
+    }
 }

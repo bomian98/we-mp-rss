@@ -1,0 +1,9 @@
+---
+description: 项目环境配置指南
+alwaysApply: true
+---
+
+# 环境配置指南
+
+- **Python**：使用 conda 环境 `wemprss`。执行 Python/pip/playwright 等命令前先 `conda activate wemprss`。
+- **前端**：使用 yarn（`yarn install`、`yarn dev`、`yarn build`），工作目录为 `web_ui/`。

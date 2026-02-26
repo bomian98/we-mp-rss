@@ -7,7 +7,7 @@
           <img :src="logo" alt="avatar" :width="60" style="margin-right:1rem;">
           <router-link to="/">{{ appTitle }}</router-link>
           <a-tooltip v-if="hasLogined" :content="!haswxLogined ? '未授权，请扫码登录' : '点我扫码授权'" position="bottom">
-            <icon-scan @click="showAuthQrcode()" :style="{ marginLeft: '10px', cursor: 'pointer', color: !haswxLogined ? '#f00' : '#000' }"/>
+            <icon-scan @click="showAuthQrcode()" class="header-scan-icon" :class="{ 'header-scan-icon--warn': !haswxLogined }"/>
           </a-tooltip>
         </div>
         <a-space>
@@ -135,25 +135,7 @@
       <div class="header-right" v-if="hasLogined">
         <a-link href="/views/home" target="_blank" style="margin-right: 20px;">Views</a-link>
         <a-link href="/api/docs" target="_blank" style="margin-right: 20px;">Docs</a-link>
-        <a-link href="https://gitee.com/rachel_os/we-mp-rss" target="_blank" style="margin-right: 20px;">Gitee</a-link>
-        <a-link href="https://github.com/rachelos/we-mp-rss" target="_blank" style="margin-right: 20px;">GitHub</a-link>
-        <a-tooltip content="GitHub或者Google账户注册登录，获得首月5美元奖励。注册180+天的GitHub账户还可以解锁每月5美元的额度赠送。" position="bottom">
-          <a-link href="https://console.run.claw.cloud/signin?link=FJ0VXS42W2P9" target="_blank"
-            style="margin-right: 20px;">ClawCloud</a-link>
-        </a-tooltip>
-        <a-tooltip content="如果您需要部署此项目，建议采用腾讯云服务器，您懂得" position="bottom">
-          <a-link
-            href="https://cloud.tencent.com/act/cps/redirect?redirect=2446&cps_key=f8ce741e7b24cd68141ab2115122ea94&from=console"
-            target="_blank" style="margin-right: 20px;">云部署</a-link>
-        </a-tooltip>
-        <a-tooltip content="您的支持是作者的最大动力，来一杯咖啡吧" position="bottom">
-          <a-link @click="showSponsorModal" style="margin-right: 20px; cursor: pointer;" type="text">支持</a-link>
-        </a-tooltip>
-        <a-link href="https://www.paypal.com/ncp/payment/PUA72WYLAV5KW" target="_blank"
-          style="margin-right: 20px;">赞助</a-link>
-
-
-
+        <a-link href="https://github.com/bomian98/we-mp-rss" target="_blank" style="margin-right: 20px;">GitHub</a-link>
         <a-dropdown position="br" trigger="click">
           <div class="user-info">
             <a-avatar :size="36">
@@ -182,14 +164,6 @@
           </template>
         </a-dropdown>
         <WechatAuthQrcode ref="qrcodeRef" />
-        <a-modal v-model:visible="sponsorVisible" title="感谢支持" :footer="false" :style="{ zIndex: 1000 }" unmount-on-close>
-          <div style="text-align: center;">
-            <p>如果您觉得这个项目对您有帮助,请给Rachel来一杯Coffee吧~ </p>
-            <img src="@/assets/images/sponsor.jpg" alt="赞赏码" style="max-width: 300px; margin-top: 20px;">
-            <p>您打赏的金额将用于维护项目的运行成本，感谢您的支持！</p>
-            <p>打赏后可以发送单号到<a href="mailto:rachelos@qq.com">rachelos@qq.com</a></p>
-          </div>
-        </a-modal>
       </div>
     </a-layout-header>
 
@@ -208,7 +182,6 @@
 <script setup lang="ts">
 import translate from 'i18n-jsautotranslate'
 import { ref,watchEffect, computed, onMounted, watch, provide } from 'vue'
-import { Modal } from '@arco-design/web-vue/es/modal'
 import {getSysInfo} from '@/api/sysInfo'
 const currentLanguage = ref(localStorage.getItem('language') || 'chinese_simplified');
 
@@ -217,15 +190,6 @@ const handleLanguageChange = (language: string) => {
   setCurrentLanguage(language);
   currentLanguage.value = language;
 };
-const sponsorCount:number = parseInt(localStorage.getItem('sponsor'))|| 0
-localStorage.setItem('sponsor', (sponsorCount+1).toString())
-const sponsorVisible = ref(sponsorCount<3)
-const showSponsorModal = (e: Event) => {
-  e.preventDefault()
-  sponsorVisible.value = true
-  localStorage.setItem('sponsor',"0")
-  console.log('Sponsor modal triggered') // 添加调试日志
-}
 import { 
   initBrowserNotification 
 } from '@/utils/browserNotification'
@@ -325,17 +289,18 @@ watch(
 <style scoped>
 .app-container {
   min-height: 100vh;
+  background: var(--color-bg-base, #fafaf9);
 }
-
 
 .app-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 20px;
-  height: 64px;
-  background: var(--color-bg-2);
-  border-bottom: 1px solid var(--color-border);
+  padding: 0 24px;
+  height: 60px;
+  background: var(--color-bg-elevated, #fff);
+  border-bottom: 1px solid var(--color-border-light, #f5f5f4);
+  box-shadow: 0 1px 3px rgba(28, 25, 23, 0.04);
 }
 
 .header-left {
@@ -346,45 +311,82 @@ watch(
 .logo {
   display: flex;
   align-items: center;
-  font-size: 18px;
-  font-weight: 500;
+  font-size: 1.05rem;
+  font-weight: 600;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.logo a {
+  color: var(--color-text-primary, #1c1917);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.logo a:hover {
+  color: var(--primary-color, #0d9488);
+  text-decoration: none;
 }
 
 .logo svg {
   margin-right: 10px;
   font-size: 24px;
-  color: var(--primary-color);
+  color: var(--primary-color, #0d9488);
 }
 
 .header-right {
   display: flex;
   align-items: center;
+  gap: 8px;
 }
 
 .user-info {
   display: flex;
   align-items: center;
   cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+.user-info:hover {
+  background: var(--primary-lighter, #f0fdfa);
 }
 
 .username {
   margin-left: 10px;
+  font-weight: 500;
+  color: var(--color-text-primary, #1c1917);
 }
 
 .app-content {
-  /* padding: 20px; */
-  background: var(--color-bg-1);
-  min-height: calc(100vh - 64px);
+  background: var(--color-bg-base, #fafaf9);
+  min-height: calc(100vh - 60px);
 }
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s ease;
+  transition: opacity 0.25s ease;
 }
 
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.header-scan-icon {
+  margin-left: 10px;
+  cursor: pointer;
+  color: var(--primary-color, #0d9488);
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+.header-scan-icon:hover {
+  color: var(--primary-hover, #0f766e);
+  transform: scale(1.05);
+}
+.header-scan-icon--warn {
+  color: var(--danger-color, #dc2626);
+}
+.header-scan-icon--warn:hover {
+  color: #b91c1c;
 }
 
 @media (max-width: 720px) {

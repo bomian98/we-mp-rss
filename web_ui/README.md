@@ -69,3 +69,6 @@ src/
 - ArcoDesign Vue
 - TypeScript
 - Axios
+
+## 更多说明
+- **项目构成与开发约定**（目录结构、路由、API、权限、环境变量等）见 [AGENTS.md](./AGENTS.md)，便于 Cursor 与开发者快速定位与修改逻辑。
